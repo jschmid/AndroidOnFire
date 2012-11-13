@@ -1,0 +1,48 @@
+<html>
+  <head>
+    <script type='text/javascript' src='http://static.firebase.com/v0/firebase.js'></script>
+  </head>
+  <body style="background: red;">
+  	<script type='text/javascript'>
+
+	var bases = {};
+	
+	function getBase(endpoint) {
+		var base = bases[endpoint];
+		if(base == null) {
+			bases[endpoint] = new Firebase(endpoint);
+			base = bases[endpoint];
+		}
+		return base;
+	}
+	
+	function on(endpoint, ev, methodId) {
+		getBase(endpoint).on(ev, function(snapshot, prevChildName) {
+			var message = snapshot.val();
+			var json = JSON.stringify(message);
+			var name = snapshot.name();
+			Android.onEvent(endpoint, methodId, name, json, prevChildName);
+		});
+	}
+	
+	function set(endpoint, obj) {
+		getBase(endpoint).set(obj);
+	}
+	
+	function push(endpoint, obj) {
+		var parent = getBase(endpoint);
+		var pushed = parent.push(obj);
+		var name = pushed.name();
+		var fullName = parent.toString() + '/' + name;
+		bases[fullName] = pushed;
+		Android.pushed(name);
+	}
+
+	function remove(endpoint) {
+		getBase(endpoint).remove();
+		delete bases[endpoint];
+	}
+	
+    </script>
+  </body>
+</html>
