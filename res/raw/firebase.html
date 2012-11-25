@@ -6,6 +6,7 @@
   	<script type='text/javascript'>
 
 	var bases = {};
+	var methods = {};
 	
 	function getBase(endpoint) {
 		var base = bases[endpoint];
@@ -17,12 +18,33 @@
 	}
 	
 	function on(endpoint, ev, methodId) {
-		getBase(endpoint).on(ev, function(snapshot, prevChildName) {
-			var message = snapshot.val();
-			var json = JSON.stringify(message);
+		
+		var m = function(snapshot, prevChildName) {
 			var name = snapshot.name();
-			Android.onEvent(endpoint, methodId, name, json, prevChildName);
-		});
+			var message = snapshot.val();
+			var val = JSON.stringify(message);
+			Android.onEvent(endpoint, methodId, name, val, prevChildName);
+		};
+		methods[methodId] = m;
+		
+		getBase(endpoint).on(ev, m);
+	}
+	
+	function off(endpoint, ev, methodId) {
+
+
+		if(ev === undefined) {
+			getBase(endpoint).off();
+		} else if(methodId === undefined) {
+			getBase(endpoint).off(ev);
+		} else {
+			var m = methods[methodId];
+			if(m == null) {
+				return;
+			}
+			
+			getBase(endpoint).off(ev, m);
+		}
 	}
 	
 	function set(endpoint, obj) {
