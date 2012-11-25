@@ -83,4 +83,8 @@ public class Firebase {
 	public void off(EventType ev, DataEvent callback) {
 		this.mJsInterface.off(mToString, ev, callback);
 	}
+
+	public void once(EventType ev, DataEvent callback) {
+		this.mJsInterface.once(mToString, ev, callback);
+	}
 }

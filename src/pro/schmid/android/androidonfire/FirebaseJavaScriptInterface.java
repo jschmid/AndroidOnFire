@@ -192,6 +192,16 @@ class FirebaseJavaScriptInterface {
 		return id;
 	}
 
+	public void once(final String endpoint, final EventType ev, final DataEvent callback) {
+		this.on(endpoint, ev, new DataEvent() {
+			@Override
+			public void callback(DataSnapshot snapshot, String prevChildName) {
+				off(endpoint, ev, this);
+				callback.callback(snapshot, prevChildName);
+			}
+		});
+	}
+
 	private void loadMethod(String method) {
 		Log.d(TAG, method);
 		mWebView.loadUrl("javascript:" + method);
