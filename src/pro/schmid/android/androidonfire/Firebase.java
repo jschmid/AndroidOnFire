@@ -67,6 +67,14 @@ public class Firebase {
 
 	// TODO push(obj, onComplete)
 
+	public void setOnDisconnect(JsonElement obj) {
+		this.mJsInterface.setOnDisconnect(mToString, obj);
+	}
+
+	public void removeOnDisconnect() {
+		this.mJsInterface.removeOnDisconnect(mToString);
+	}
+
 	public DataEvent on(EventType ev, DataEvent callback) {
 		this.mJsInterface.on(mToString, ev, callback);
 		return callback;

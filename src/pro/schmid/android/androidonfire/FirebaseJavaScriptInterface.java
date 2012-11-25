@@ -67,6 +67,16 @@ class FirebaseJavaScriptInterface {
 		loadMethod(method);
 	}
 
+	public void setOnDisconnect(String endpoint, JsonElement obj) {
+		String method = "setOnDisconnect('" + endpoint + "', " + obj.toString() + ")";
+		loadMethod(method);
+	}
+
+	public void removeOnDisconnect(String endpoint) {
+		String method = "removeOnDisconnect('" + endpoint + "')";
+		loadMethod(method);
+	}
+
 	public void on(String endpoint, EventType ev, DataEvent callback) {
 		int methodId = mMethodCounter.incrementAndGet();
 		this.mListenersIds.put(methodId, callback);

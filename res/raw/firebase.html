@@ -31,8 +31,6 @@
 	}
 	
 	function off(endpoint, ev, methodId) {
-
-
 		if(ev === undefined) {
 			getBase(endpoint).off();
 		} else if(methodId === undefined) {
@@ -58,6 +56,14 @@
 		var fullName = parent.toString() + '/' + name;
 		bases[fullName] = pushed;
 		Android.pushed(name);
+	}
+
+	function setOnDisconnect(endpoint, obj) {
+		getBase(endpoint).setOnDisconnect(obj);
+	}
+	
+	function removeOnDisconnect(endpoint) {
+		getBase(endpoint).removeOnDisconnect();
 	}
 
 	function remove(endpoint) {
