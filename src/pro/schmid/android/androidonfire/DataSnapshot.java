@@ -4,7 +4,6 @@ import java.util.Map.Entry;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 public class DataSnapshot {
 	private final Firebase mParent;
@@ -22,7 +21,7 @@ public class DataSnapshot {
 
 	public DataSnapshot(Firebase parent, String el) {
 		this.mParent = parent;
-		this.mElement = SingletonHolder.INSTANCE.parse(el);
+		this.mElement = FirebaseJsonParser.getInstance().parse(el);
 	}
 
 	public JsonElement val() {
@@ -87,10 +86,6 @@ public class DataSnapshot {
 
 	public Firebase ref() {
 		return this.mParent;
-	}
-
-	private static class SingletonHolder {
-		public static final JsonParser INSTANCE = new JsonParser();
 	}
 
 	public static interface DataSnapshotCallback {

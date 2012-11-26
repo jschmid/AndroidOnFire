@@ -3,6 +3,8 @@ package pro.schmid.android.androidonfire;
 import pro.schmid.android.androidonfire.callbacks.DataEvent;
 import pro.schmid.android.androidonfire.callbacks.EventType;
 import pro.schmid.android.androidonfire.callbacks.Pushed;
+import pro.schmid.android.androidonfire.callbacks.Transaction;
+import pro.schmid.android.androidonfire.callbacks.TransactionComplete;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -66,6 +68,14 @@ public class Firebase {
 	}
 
 	// TODO push(obj, onComplete)
+
+	public void transaction(Transaction transaction) {
+		transaction(transaction, null);
+	}
+
+	public void transaction(Transaction transaction, TransactionComplete onComplete) {
+		this.mJsInterface.transaction(mToString, transaction, onComplete);
+	}
 
 	public void setOnDisconnect(JsonElement obj) {
 		this.mJsInterface.setOnDisconnect(mToString, obj);

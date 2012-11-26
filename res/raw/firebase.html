@@ -21,9 +21,9 @@
 		
 		var m = function(snapshot, prevChildName) {
 			var name = snapshot.name();
-			var message = snapshot.val();
-			var val = JSON.stringify(message);
-			Android.onEvent(endpoint, methodId, name, val, prevChildName);
+			var val = snapshot.val();
+			var json = JSON.stringify(val);
+			Android.onEvent(endpoint, methodId, name, json, prevChildName);
 		};
 		methods[methodId] = m;
 		
@@ -57,7 +57,22 @@
 		bases[fullName] = pushed;
 		Android.pushed(name);
 	}
-
+	
+	function transaction(endpoint, methodId) {
+		getBase(endpoint).transaction(
+			function(currentData) {
+				var json = JSON.stringify(currentData);
+				return Android.callTransactionMethod(endpoint, methodId, json);
+			},
+			function(success, snapshot, reason) {
+				var name = snapshot.name();
+				var val = snapshot.val();
+				var json = JSON.stringify(val);
+				Android.transactionComplete(endpoint, methodId, name, json, reason);
+      		}
+		);
+	}
+			
 	function setOnDisconnect(endpoint, obj) {
 		getBase(endpoint).setOnDisconnect(obj);
 	}
