@@ -2,7 +2,6 @@ package pro.schmid.android.androidonfire;
 
 import pro.schmid.android.androidonfire.callbacks.DataEvent;
 import pro.schmid.android.androidonfire.callbacks.EventType;
-import pro.schmid.android.androidonfire.callbacks.Pushed;
 import pro.schmid.android.androidonfire.callbacks.Transaction;
 import pro.schmid.android.androidonfire.callbacks.TransactionComplete;
 
@@ -59,12 +58,12 @@ public class Firebase {
 		this.mJsInterface.remove(this);
 	}
 
-	public synchronized void push(Pushed callback) {
-		this.push(new JsonObject(), callback);
+	public synchronized Firebase push() {
+		return this.push(new JsonObject());
 	}
 
-	public synchronized void push(JsonElement obj, Pushed callback) {
-		this.mJsInterface.push(this, obj, callback);
+	public synchronized Firebase push(JsonElement obj) {
+		return this.mJsInterface.push(this, obj);
 	}
 
 	// TODO push(obj, onComplete)

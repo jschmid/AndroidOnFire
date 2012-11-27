@@ -9,7 +9,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import pro.schmid.android.androidonfire.callbacks.DataEvent;
 import pro.schmid.android.androidonfire.callbacks.EventType;
-import pro.schmid.android.androidonfire.callbacks.Pushed;
 import pro.schmid.android.androidonfire.callbacks.Transaction;
 import pro.schmid.android.androidonfire.callbacks.TransactionComplete;
 import android.util.Log;
@@ -43,20 +42,18 @@ class FirebaseJavaScriptInterface {
 	private String mPushName = null;
 	private final Semaphore mSemaphore = new Semaphore(0, true);
 
-	public synchronized void push(Firebase endpoint, JsonElement obj, Pushed callback) {
+	public synchronized Firebase push(Firebase endpoint, JsonElement obj) {
 		String method = "push('" + endpoint.toString() + "', " + obj.toString() + ")";
 		loadMethod(method);
 
 		try {
 			mSemaphore.acquire();
 		} catch (InterruptedException e) {
-			return;
+			return null;
 		}
 
-		if (callback != null) {
-			Firebase newBase = new Firebase(this, endpoint, mPushName);
-			callback.pushed(newBase);
-		}
+		Firebase newBase = new Firebase(this, endpoint, mPushName);
+		return newBase;
 	}
 
 	/**
