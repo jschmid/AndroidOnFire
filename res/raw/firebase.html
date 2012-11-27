@@ -68,7 +68,7 @@
 				var name = snapshot.name();
 				var val = snapshot.val();
 				var json = JSON.stringify(val);
-				Android.transactionComplete(endpoint, methodId, name, json, reason);
+				Android.transactionComplete(endpoint, methodId, success, name, json, reason);
       		}
 		);
 	}

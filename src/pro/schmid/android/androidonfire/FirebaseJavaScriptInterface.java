@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import pro.schmid.android.androidonfire.callbacks.DataEvent;
@@ -40,18 +41,18 @@ class FirebaseJavaScriptInterface {
 	}
 
 	private String mPushName = null;
+	private final Semaphore mSemaphore = new Semaphore(0, true);
 
 	public synchronized void push(Firebase endpoint, JsonElement obj, Pushed callback) {
 		String method = "push('" + endpoint.toString() + "', " + obj.toString() + ")";
 		loadMethod(method);
 
-		// TODO semaphore ?
 		try {
-			wait();
+			mSemaphore.acquire();
 		} catch (InterruptedException e) {
+			return;
 		}
 
-		Log.d(TAG, "Finished " + mPushName);
 		if (callback != null) {
 			Firebase newBase = new Firebase(this, endpoint, mPushName);
 			callback.pushed(newBase);
@@ -61,10 +62,9 @@ class FirebaseJavaScriptInterface {
 	/**
 	 * Called by JS
 	 */
-	public synchronized void pushed(String name) {
-		Log.d(TAG, "Pushed " + name);
+	public void pushed(String name) {
 		mPushName = name;
-		notify();
+		mSemaphore.release();
 	}
 
 	public void transaction(String endpoint, Transaction transaction, TransactionComplete onComplete) {
@@ -100,7 +100,7 @@ class FirebaseJavaScriptInterface {
 	/**
 	 * Called by JS
 	 */
-	public void transactionComplete(String endpoint, int methodId, String name, String val, String reason) {
+	public void transactionComplete(String endpoint, int methodId, boolean success, String name, String val, String reason) {
 
 		Firebase parent = FirebaseEngine.getInstance().newFirebase(endpoint);
 		DataSnapshot snapshot = new DataSnapshot(parent.child(name), val);
@@ -108,7 +108,7 @@ class FirebaseJavaScriptInterface {
 		TransactionComplete transactionComplete = mTransactionsComplete.get(methodId);
 
 		if (transactionComplete != null) {
-			transactionComplete.onComplete(true, snapshot, reason);
+			transactionComplete.onComplete(success, snapshot, reason);
 		}
 
 		mTransactions.remove(methodId);
