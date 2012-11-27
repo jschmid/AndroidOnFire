@@ -45,13 +45,29 @@
 		}
 	}
 	
-	function set(endpoint, obj) {
-		getBase(endpoint).set(obj);
+	function set(endpoint, obj, methodId) {
+		var parent = getBase(endpoint);
+
+		if(methodId === undefined) {
+			parent.set(obj);
+		} else {
+			parent.set(obj, function(success) {
+				Android.synchronizedToServer(methodId, success);
+			});
+		}
 	}
 	
-	function push(endpoint, obj) {
+	function push(endpoint, obj, methodId) {
 		var parent = getBase(endpoint);
-		var pushed = parent.push(obj);
+		
+		if(methodId === undefined) {
+			var pushed = parent.push(obj);
+		} else {
+			var pushed = parent.push(obj, function(success) {
+				Android.synchronizedToServer(methodId, success);
+			});
+		}
+		
 		var name = pushed.name();
 		var fullName = parent.toString() + '/' + name;
 		bases[fullName] = pushed;

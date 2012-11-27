@@ -2,6 +2,7 @@ package pro.schmid.android.androidonfire;
 
 import pro.schmid.android.androidonfire.callbacks.DataEvent;
 import pro.schmid.android.androidonfire.callbacks.EventType;
+import pro.schmid.android.androidonfire.callbacks.SynchonizedToServer;
 import pro.schmid.android.androidonfire.callbacks.Transaction;
 import pro.schmid.android.androidonfire.callbacks.TransactionComplete;
 
@@ -50,7 +51,11 @@ public class Firebase {
 
 	// TODO what does set(null) do ?
 	public void set(JsonElement obj) {
-		this.mJsInterface.set(mEndpoint, obj);
+		this.set(obj, null);
+	}
+
+	public void set(JsonElement obj, SynchonizedToServer onComplete) {
+		this.mJsInterface.set(mEndpoint, obj, onComplete);
 	}
 
 	// TODO on complete
@@ -63,7 +68,11 @@ public class Firebase {
 	}
 
 	public synchronized Firebase push(JsonElement obj) {
-		return this.mJsInterface.push(this, obj);
+		return this.push(obj, null);
+	}
+
+	public synchronized Firebase push(JsonElement obj, SynchonizedToServer onComplete) {
+		return this.mJsInterface.push(this, obj, onComplete);
 	}
 
 	// TODO push(obj, onComplete)

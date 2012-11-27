@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import pro.schmid.android.androidonfire.callbacks.DataEvent;
 import pro.schmid.android.androidonfire.callbacks.EventType;
+import pro.schmid.android.androidonfire.callbacks.SynchonizedToServer;
 import pro.schmid.android.androidonfire.callbacks.Transaction;
 import pro.schmid.android.androidonfire.callbacks.TransactionComplete;
 import android.util.Log;
@@ -23,6 +24,7 @@ class FirebaseJavaScriptInterface {
 
 	private final WebView mWebView;
 	private final SparseArray<DataEvent> mListenersIds = new SparseArray<DataEvent>();
+	private final SparseArray<SynchonizedToServer> mSynchronizedToServer = new SparseArray<SynchonizedToServer>();
 	private final SparseArray<Transaction> mTransactions = new SparseArray<Transaction>();
 	private final SparseArray<TransactionComplete> mTransactionsComplete = new SparseArray<TransactionComplete>();
 
@@ -34,16 +36,30 @@ class FirebaseJavaScriptInterface {
 		this.mWebView = webView;
 	}
 
-	public void set(String endpoint, JsonElement obj) {
-		String method = "set('" + endpoint + "', " + obj.toString() + ")";
+	public void set(String endpoint, JsonElement obj, SynchonizedToServer onComplete) {
+		String method = null;
+		if (onComplete != null) {
+			int methodId = mMethodCounter.incrementAndGet();
+			mSynchronizedToServer.put(methodId, onComplete);
+			method = "set('" + endpoint + "', " + obj.toString() + ", " + methodId + ")";
+		} else {
+			method = "set('" + endpoint + "', " + obj.toString() + ")";
+		}
 		loadMethod(method);
 	}
 
 	private String mPushName = null;
 	private final Semaphore mSemaphore = new Semaphore(0, true);
 
-	public synchronized Firebase push(Firebase endpoint, JsonElement obj) {
-		String method = "push('" + endpoint.toString() + "', " + obj.toString() + ")";
+	public synchronized Firebase push(Firebase endpoint, JsonElement obj, SynchonizedToServer onComplete) {
+		String method = null;
+		if (onComplete != null) {
+			int methodId = mMethodCounter.incrementAndGet();
+			mSynchronizedToServer.put(methodId, onComplete);
+			method = "push('" + endpoint.toString() + "', " + obj.toString() + ", " + methodId + ")";
+		} else {
+			method = "push('" + endpoint.toString() + "', " + obj.toString() + ")";
+		}
 		loadMethod(method);
 
 		try {
@@ -62,6 +78,17 @@ class FirebaseJavaScriptInterface {
 	public void pushed(String name) {
 		mPushName = name;
 		mSemaphore.release();
+	}
+
+	/**
+	 * Called by JS
+	 */
+	public void synchronizedToServer(int methodId, boolean success) {
+		SynchonizedToServer pushComplete = mSynchronizedToServer.get(methodId);
+		if (pushComplete != null) {
+			pushComplete.onComplete(success);
+			mSynchronizedToServer.remove(methodId);
+		}
 	}
 
 	public void transaction(String endpoint, Transaction transaction, TransactionComplete onComplete) {
