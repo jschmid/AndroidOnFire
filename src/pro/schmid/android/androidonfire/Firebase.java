@@ -11,8 +11,8 @@ import com.google.gson.JsonObject;
 public class Firebase {
 	private final FirebaseJavaScriptInterface mJsInterface;
 	private final Firebase mParent;
+	private final String mEndpoint;
 	private final String mName;
-	private final String mToString;
 
 	protected Firebase(FirebaseJavaScriptInterface jsInterface, String name) {
 		this(jsInterface, null, name);
@@ -24,9 +24,9 @@ public class Firebase {
 		this.mName = name;
 
 		if (mParent != null) {
-			mToString = mParent.toString() + "/" + mName;
+			mEndpoint = mParent.toString() + "/" + mName;
 		} else {
-			mToString = mName;
+			mEndpoint = mName;
 		}
 	}
 
@@ -45,17 +45,17 @@ public class Firebase {
 
 	@Override
 	public String toString() {
-		return mToString;
+		return mEndpoint;
 	}
 
 	// TODO what does set(null) do ?
 	public void set(JsonElement obj) {
-		this.mJsInterface.set(this, obj);
+		this.mJsInterface.set(mEndpoint, obj);
 	}
 
 	// TODO on complete
 	public void remove() {
-		this.mJsInterface.remove(this);
+		this.mJsInterface.remove(mEndpoint);
 	}
 
 	public synchronized Firebase push() {
@@ -73,35 +73,35 @@ public class Firebase {
 	}
 
 	public void transaction(Transaction transaction, TransactionComplete onComplete) {
-		this.mJsInterface.transaction(mToString, transaction, onComplete);
+		this.mJsInterface.transaction(mEndpoint, transaction, onComplete);
 	}
 
 	public void setOnDisconnect(JsonElement obj) {
-		this.mJsInterface.setOnDisconnect(mToString, obj);
+		this.mJsInterface.setOnDisconnect(mEndpoint, obj);
 	}
 
 	public void removeOnDisconnect() {
-		this.mJsInterface.removeOnDisconnect(mToString);
+		this.mJsInterface.removeOnDisconnect(mEndpoint);
 	}
 
 	public DataEvent on(EventType ev, DataEvent callback) {
-		this.mJsInterface.on(mToString, ev, callback);
+		this.mJsInterface.on(mEndpoint, ev, callback);
 		return callback;
 	}
 
 	public void off() {
-		this.mJsInterface.off(mToString);
+		this.mJsInterface.off(mEndpoint);
 	}
 
 	public void off(EventType ev) {
-		this.mJsInterface.off(mToString, ev);
+		this.mJsInterface.off(mEndpoint, ev);
 	}
 
 	public void off(EventType ev, DataEvent callback) {
-		this.mJsInterface.off(mToString, ev, callback);
+		this.mJsInterface.off(mEndpoint, ev, callback);
 	}
 
 	public void once(EventType ev, DataEvent callback) {
-		this.mJsInterface.once(mToString, ev, callback);
+		this.mJsInterface.once(mEndpoint, ev, callback);
 	}
 }

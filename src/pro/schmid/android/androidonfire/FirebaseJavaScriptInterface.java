@@ -34,8 +34,8 @@ class FirebaseJavaScriptInterface {
 		this.mWebView = webView;
 	}
 
-	public void set(Firebase endpoint, JsonElement obj) {
-		String method = "set('" + endpoint.toString() + "', " + obj.toString() + ")";
+	public void set(String endpoint, JsonElement obj) {
+		String method = "set('" + endpoint + "', " + obj.toString() + ")";
 		loadMethod(method);
 	}
 
@@ -112,8 +112,8 @@ class FirebaseJavaScriptInterface {
 		mTransactionsComplete.remove(methodId);
 	}
 
-	public void remove(Firebase endpoint) {
-		String method = "remove('" + endpoint.toString() + "')";
+	public void remove(String endpoint) {
+		String method = "remove('" + endpoint + "')";
 		loadMethod(method);
 	}
 
