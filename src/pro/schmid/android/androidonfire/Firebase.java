@@ -75,7 +75,21 @@ public class Firebase {
 		return this.mJsInterface.push(this, obj, onComplete);
 	}
 
-	// TODO push(obj, onComplete)
+	public void setWithPriority(JsonElement obj, String priority) {
+		this.setWithPriority(obj, priority, null);
+	}
+
+	public void setWithPriority(JsonElement obj, String priority, SynchonizedToServer onComplete) {
+		this.mJsInterface.setWithPriority(mEndpoint, obj, priority, onComplete);
+	}
+
+	public void setPriority(String priority) {
+		this.setPriority(priority, null);
+	}
+
+	public void setPriority(String priority, SynchonizedToServer onComplete) {
+		this.mJsInterface.setPriority(mEndpoint, priority, onComplete);
+	}
 
 	public void transaction(Transaction transaction) {
 		transaction(transaction, null);

@@ -80,6 +80,30 @@ class FirebaseJavaScriptInterface {
 		mSemaphore.release();
 	}
 
+	public void setWithPriority(String endpoint, JsonElement obj, String priority, SynchonizedToServer onComplete) {
+		String method = null;
+		if (onComplete != null) {
+			int methodId = mMethodCounter.incrementAndGet();
+			mSynchronizedToServer.put(methodId, onComplete);
+			method = "setWithPriority('" + endpoint + "', " + obj.toString() + ", '" + priority + "', " + methodId + ")";
+		} else {
+			method = "setWithPriority('" + endpoint + "', " + obj.toString() + ", '" + priority + "')";
+		}
+		loadMethod(method);
+	}
+
+	public void setPriority(String endpoint, String priority, SynchonizedToServer onComplete) {
+		String method = null;
+		if (onComplete != null) {
+			int methodId = mMethodCounter.incrementAndGet();
+			mSynchronizedToServer.put(methodId, onComplete);
+			method = "setPriority('" + endpoint + "', '" + priority + "', " + methodId + ")";
+		} else {
+			method = "setPriority('" + endpoint + "', '" + priority + "')";
+		}
+		loadMethod(method);
+	}
+
 	/**
 	 * Called by JS
 	 */
@@ -191,11 +215,11 @@ class FirebaseJavaScriptInterface {
 	/**
 	 * Called by JS
 	 */
-	public void onEvent(String endpoint, int methodId, String name, String val, String prevChildName) {
+	public void onEvent(String endpoint, int methodId, String name, String val, String priority, String prevChildName) {
 		DataEvent listener;
 		if ((listener = this.mListenersIds.get(methodId)) != null) {
 			Firebase parent = FirebaseEngine.getInstance().newFirebase(endpoint);
-			DataSnapshot snapshot = new DataSnapshot(parent.child(name), val);
+			DataSnapshot snapshot = new DataSnapshot(parent.child(name), val, priority);
 			listener.callback(snapshot, prevChildName);
 		}
 	}

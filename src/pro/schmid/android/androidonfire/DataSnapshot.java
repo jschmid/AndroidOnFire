@@ -8,20 +8,28 @@ import com.google.gson.JsonObject;
 public class DataSnapshot {
 	private final Firebase mParent;
 	private final JsonElement mElement;
+	private final String mPriority;
 
-	public DataSnapshot(Firebase parent) {
-		this.mParent = parent;
-		this.mElement = null;
+	DataSnapshot(Firebase parent) {
+		this(parent, (JsonElement) null, null);
 	}
 
-	public DataSnapshot(Firebase parent, JsonElement el) {
+	DataSnapshot(Firebase parent, String el) {
+		this(parent, el, null);
+	}
+
+	DataSnapshot(Firebase parent, String el, String priority) {
+		this(parent, FirebaseJsonParser.getInstance().parse(el), priority);
+	}
+
+	DataSnapshot(Firebase parent, JsonElement el) {
+		this(parent, el, null);
+	}
+
+	DataSnapshot(Firebase parent, JsonElement el, String priority) {
 		this.mParent = parent;
 		this.mElement = el;
-	}
-
-	public DataSnapshot(Firebase parent, String el) {
-		this.mParent = parent;
-		this.mElement = FirebaseJsonParser.getInstance().parse(el);
+		this.mPriority = priority;
 	}
 
 	public JsonElement val() {
@@ -86,6 +94,10 @@ public class DataSnapshot {
 
 	public Firebase ref() {
 		return this.mParent;
+	}
+
+	public String getPriority() {
+		return mPriority;
 	}
 
 	public static interface DataSnapshotCallback {

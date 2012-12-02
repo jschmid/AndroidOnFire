@@ -22,8 +22,9 @@
 		var m = function(snapshot, prevChildName) {
 			var name = snapshot.name();
 			var val = snapshot.val();
+			var pri = snapshot.getPriority();
 			var json = JSON.stringify(val);
-			Android.onEvent(endpoint, methodId, name, json, prevChildName);
+			Android.onEvent(endpoint, methodId, name, json, pri, prevChildName);
 		};
 		methods[methodId] = m;
 		
@@ -52,6 +53,30 @@
 			parent.set(obj);
 		} else {
 			parent.set(obj, function(success) {
+				Android.synchronizedToServer(methodId, success);
+			});
+		}
+	}
+	
+	function setWithPriority(endpoint, obj, priority, methodId) {
+		var parent = getBase(endpoint);
+
+		if(methodId === undefined) {
+			parent.setWithPriority(obj, priority);
+		} else {
+			parent.setWithPriority(obj, priority, function(success) {
+				Android.synchronizedToServer(methodId, success);
+			});
+		}
+	}
+	
+	function setPriority(endpoint, priority, methodId) {
+		var parent = getBase(endpoint);
+
+		if(methodId === undefined) {
+			parent.setPriority(priority);
+		} else {
+			parent.setPriority(priority, function(success) {
 				Android.synchronizedToServer(methodId, success);
 			});
 		}
