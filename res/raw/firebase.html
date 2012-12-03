@@ -127,6 +127,23 @@
 		delete bases[endpoint];
 	}
 	
+	function onLimit(endpoint, ev, limit, methodId) {
+		
+		var m = function(snapshot, prevChildName) {
+			var name = snapshot.name();
+			var val = snapshot.val();
+			var pri = snapshot.getPriority();
+			var json = JSON.stringify(val);
+			Android.onEvent(endpoint, methodId, name, json, pri, prevChildName);
+		};
+		methods[methodId] = m;
+		
+		var base = getBase(endpoint);
+		base = base.limit(limit);
+		
+		base.on(ev, m);
+	}
+	
     </script>
   </body>
 </html>

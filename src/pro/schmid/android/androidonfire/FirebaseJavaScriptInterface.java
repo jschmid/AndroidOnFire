@@ -319,4 +319,16 @@ class FirebaseJavaScriptInterface {
 		Log.d(TAG, method);
 		mWebView.loadUrl("javascript:" + method);
 	}
+
+	// ////////// QUERY ////////
+
+	public void on(String endpoint, Query query, EventType ev, DataEvent callback) {
+
+		int methodId = mMethodCounter.incrementAndGet();
+		this.mListenersIds.put(methodId, callback);
+		// putCallBack(endpoint, ev, callback, methodId);
+
+		String method = "onLimit('" + endpoint + "', '" + ev + "', " + query.mLimit + ", " + methodId + ")";
+		loadMethod(method);
+	}
 }

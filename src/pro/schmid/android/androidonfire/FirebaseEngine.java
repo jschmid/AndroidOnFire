@@ -22,7 +22,11 @@ public class FirebaseEngine {
 	private FirebaseJavaScriptInterface mJS;
 	private FirebaseLoaded mLoadedListener;
 
-	public FirebaseEngine() {
+	private FirebaseEngine() {
+	}
+
+	public void onDestroy() {
+		mWebView.destroy();
 	}
 
 	public void loadEngine(Activity activity) {

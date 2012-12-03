@@ -127,4 +127,8 @@ public class Firebase {
 	public void once(EventType ev, DataEvent callback) {
 		this.mJsInterface.once(mEndpoint, ev, callback);
 	}
+
+	public Query limit(int limit) {
+		return new Query(mJsInterface, this).limit(limit);
+	}
 }
