@@ -320,15 +320,48 @@ class FirebaseJavaScriptInterface {
 		mWebView.loadUrl("javascript:" + method);
 	}
 
-	// ////////// QUERY ////////
-
-	public void on(String endpoint, Query query, EventType ev, DataEvent callback) {
+	public void onQuery(String endpoint, Query query, EventType ev, DataEvent callback) {
 
 		int methodId = mMethodCounter.incrementAndGet();
 		this.mListenersIds.put(methodId, callback);
 		// putCallBack(endpoint, ev, callback, methodId);
 
-		String method = "onLimit('" + endpoint + "', '" + ev + "', " + query.mLimit + ", " + methodId + ")";
+		StringBuilder sb = new StringBuilder();
+		sb.append("onQuery('" + endpoint + "', '" + ev + "', " + methodId);
+
+		if (query.mLimit > -1) {
+			sb.append(", " + query.mLimit);
+		} else {
+			sb.append(", undefined");
+		}
+
+		if (query.mStartPriority != null) {
+			sb.append(", '" + query.mStartPriority + "'");
+		} else {
+			sb.append(", undefined");
+		}
+
+		if (query.mStartName != null) {
+			sb.append(", '" + query.mStartName + "'");
+		} else {
+			sb.append(", undefined");
+		}
+
+		if (query.mEndPriority != null) {
+			sb.append(", '" + query.mEndPriority + "'");
+		} else {
+			sb.append(", undefined");
+		}
+
+		if (query.mEndName != null) {
+			sb.append(", '" + query.mEndName + "'");
+		} else {
+			sb.append(", undefined");
+		}
+
+		sb.append(")");
+
+		String method = sb.toString();
 		loadMethod(method);
 	}
 }

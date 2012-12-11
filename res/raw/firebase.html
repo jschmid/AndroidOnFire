@@ -4,146 +4,170 @@
   </head>
   <body style="background: red;">
   	<script type='text/javascript'>
+  	
+  	var bases = {};
+  	var methods = {};
 
-	var bases = {};
-	var methods = {};
-	
-	function getBase(endpoint) {
-		var base = bases[endpoint];
-		if(base == null) {
-			bases[endpoint] = new Firebase(endpoint);
-			base = bases[endpoint];
-		}
-		return base;
-	}
-	
-	function on(endpoint, ev, methodId) {
-		
-		var m = function(snapshot, prevChildName) {
-			var name = snapshot.name();
-			var val = snapshot.val();
-			var pri = snapshot.getPriority();
-			var json = JSON.stringify(val);
-			Android.onEvent(endpoint, methodId, name, json, pri, prevChildName);
-		};
-		methods[methodId] = m;
-		
-		getBase(endpoint).on(ev, m);
-	}
-	
-	function off(endpoint, ev, methodId) {
-		if(ev === undefined) {
-			getBase(endpoint).off();
-		} else if(methodId === undefined) {
-			getBase(endpoint).off(ev);
-		} else {
-			var m = methods[methodId];
-			if(m == null) {
-				return;
-			}
-			
-			getBase(endpoint).off(ev, m);
-		}
-	}
-	
-	function set(endpoint, obj, methodId) {
-		var parent = getBase(endpoint);
+  	function getBase(endpoint) {
+  	  var base = bases[endpoint];
+  	  if (base == null) {
+  	    bases[endpoint] = new Firebase(endpoint);
+  	    base = bases[endpoint];
+  	  }
+  	  return base;
+  	}
 
-		if(methodId === undefined) {
-			parent.set(obj);
-		} else {
-			parent.set(obj, function(success) {
-				Android.synchronizedToServer(methodId, success);
-			});
-		}
-	}
-	
-	function setWithPriority(endpoint, obj, priority, methodId) {
-		var parent = getBase(endpoint);
+  	function on(endpoint, ev, methodId) {
+  	  
+  	  var m = function (snapshot, prevChildName) {
+  	    var name = snapshot.name();
+  	    var val = snapshot.val();
+  	    var pri = snapshot.getPriority();
+  	    var json = JSON.stringify(val);
+  	    Android.onEvent(endpoint, methodId, name, json, pri, prevChildName);
+  	  };
+  	  methods[methodId] = m;
+  	  
+  	  getBase(endpoint).on(ev, m);
+  	}
 
-		if(methodId === undefined) {
-			parent.setWithPriority(obj, priority);
-		} else {
-			parent.setWithPriority(obj, priority, function(success) {
-				Android.synchronizedToServer(methodId, success);
-			});
-		}
-	}
-	
-	function setPriority(endpoint, priority, methodId) {
-		var parent = getBase(endpoint);
+  	function off(endpoint, ev, methodId) {
+  	  if (ev === undefined) {
+  	    getBase(endpoint).off();
+  	  } else if (methodId === undefined) {
+  	    getBase(endpoint).off(ev);
+  	  } else {
+  	    var m = methods[methodId];
+  	    if (m == null) {
+  	      return;
+  	    }
+  	    
+  	    getBase(endpoint).off(ev, m);
+  	    
+  	    delete methods[methodId];
+  	  }
+  	}
 
-		if(methodId === undefined) {
-			parent.setPriority(priority);
-		} else {
-			parent.setPriority(priority, function(success) {
-				Android.synchronizedToServer(methodId, success);
-			});
-		}
-	}
-	
-	function push(endpoint, obj, methodId) {
-		var parent = getBase(endpoint);
-		
-		if(methodId === undefined) {
-			var pushed = parent.push(obj);
-		} else {
-			var pushed = parent.push(obj, function(success) {
-				Android.synchronizedToServer(methodId, success);
-			});
-		}
-		
-		var name = pushed.name();
-		var fullName = parent.toString() + '/' + name;
-		bases[fullName] = pushed;
-		Android.pushed(name);
-	}
-	
-	function transaction(endpoint, methodId) {
-		getBase(endpoint).transaction(
-			function(currentData) {
-				var json = JSON.stringify(currentData);
-				return Android.callTransactionMethod(endpoint, methodId, json);
-			},
-			function(success, snapshot, reason) {
-				var name = snapshot.name();
-				var val = snapshot.val();
-				var json = JSON.stringify(val);
-				Android.transactionComplete(endpoint, methodId, success, name, json, reason);
-      		}
-		);
-	}
-			
-	function setOnDisconnect(endpoint, obj) {
-		getBase(endpoint).setOnDisconnect(obj);
-	}
-	
-	function removeOnDisconnect(endpoint) {
-		getBase(endpoint).removeOnDisconnect();
-	}
+  	function set(endpoint, obj, methodId) {
+  	  var parent = getBase(endpoint);
+  	  
+  	  if (methodId === undefined) {
+  	    parent.set(obj);
+  	  } else {
+  	    parent.set(obj, function (success) {
+  	      Android.synchronizedToServer(methodId, success);
+  	    });
+  	  }
+  	}
 
-	function remove(endpoint) {
-		getBase(endpoint).remove();
-		delete bases[endpoint];
-	}
-	
-	function onLimit(endpoint, ev, limit, methodId) {
-		
-		var m = function(snapshot, prevChildName) {
-			var name = snapshot.name();
-			var val = snapshot.val();
-			var pri = snapshot.getPriority();
-			var json = JSON.stringify(val);
-			Android.onEvent(endpoint, methodId, name, json, pri, prevChildName);
-		};
-		methods[methodId] = m;
-		
-		var base = getBase(endpoint);
-		base = base.limit(limit);
-		
-		base.on(ev, m);
-	}
-	
+  	function setWithPriority(endpoint, obj, priority, methodId) {
+  	  var parent = getBase(endpoint);
+  	  
+  	  if (methodId === undefined) {
+  	    parent.setWithPriority(obj, priority);
+  	  } else {
+  	    parent.setWithPriority(obj, priority, function (success) {
+  	      Android.synchronizedToServer(methodId, success);
+  	    });
+  	  }
+  	}
+
+  	function setPriority(endpoint, priority, methodId) {
+  	  var parent = getBase(endpoint);
+  	  
+  	  if (methodId === undefined) {
+  	    parent.setPriority(priority);
+  	  } else {
+  	    parent.setPriority(priority, function (success) {
+  	      Android.synchronizedToServer(methodId, success);
+  	    });
+  	  }
+  	}
+
+  	function push(endpoint, obj, methodId) {
+  	  var parent = getBase(endpoint);
+  	  
+  	  if (methodId === undefined) {
+  	    var pushed = parent.push(obj);
+  	  } else {
+  	    var pushed = parent.push(obj, function (success) {
+  	        Android.synchronizedToServer(methodId, success);
+  	      });
+  	  }
+  	  
+  	  var name = pushed.name();
+  	  var fullName = parent.toString() + '/' + name;
+  	  bases[fullName] = pushed;
+  	  Android.pushed(name);
+  	}
+
+  	function transaction(endpoint, methodId) {
+  	  getBase(endpoint).transaction(
+  	    function (currentData) {
+  	    var json = JSON.stringify(currentData);
+  	    return Android.callTransactionMethod(endpoint, methodId, json);
+  	  },
+  	    function (success, snapshot, reason) {
+  	    var name = snapshot.name();
+  	    var val = snapshot.val();
+  	    var json = JSON.stringify(val);
+  	    Android.transactionComplete(endpoint, methodId, success, name, json, reason);
+  	  });
+  	}
+
+  	function setOnDisconnect(endpoint, obj) {
+  	  getBase(endpoint).setOnDisconnect(obj);
+  	}
+
+  	function removeOnDisconnect(endpoint) {
+  	  getBase(endpoint).removeOnDisconnect();
+  	}
+
+  	function remove(endpoint) {
+  	  getBase(endpoint).remove();
+  	  delete bases[endpoint];
+  	}
+
+  	function onQuery(endpoint, ev, methodId, limit, startPri, startName, endPri, endName) {
+  	  
+  	  var m = function (snapshot, prevChildName) {
+  	    var name = snapshot.name();
+  	    var val = snapshot.val();
+  	    var pri = snapshot.getPriority();
+  	    var json = JSON.stringify(val);
+  	    Android.onEvent(endpoint, methodId, name, json, pri, prevChildName);
+  	  };
+  	  methods[methodId] = m;
+  	  
+  	  try {
+  	    var base = getBase(endpoint);
+  	    
+  	    if (limit != undefined) {
+  	      base = base.limit(limit);
+  	    }
+  	    
+  	    if (startPri != undefined) {
+  	      if (startName != undefined) {
+  	        base = base.startAt(startPri, startName);
+  	      } else {
+  	        base = base.startAt(startPri);
+  	      }
+  	    }
+  	    
+  	    if (endPri != undefined) {
+  	      if (endName != undefined) {
+  	        base = base.endAt(endPri, endName);
+  	      } else {
+  	        base = base.endAt(endPri);
+  	      }
+  	    }
+  	    
+  	    base.on(ev, m);
+  	  } catch (ex) {
+  	    // There is a problem with the numbe of queries
+  	  }
+  	}
+
     </script>
   </body>
 </html>

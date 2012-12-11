@@ -22,10 +22,13 @@ public class FirebaseEngine {
 	private FirebaseJavaScriptInterface mJS;
 	private FirebaseLoaded mLoadedListener;
 
+	private ViewGroup mParentView;
+
 	private FirebaseEngine() {
 	}
 
 	public void onDestroy() {
+		mParentView.removeView(mWebView);
 		mWebView.destroy();
 	}
 
@@ -62,7 +65,7 @@ public class FirebaseEngine {
 			Log.d(TAG, "Could not load html", e);
 		}
 
-		ViewGroup v = (ViewGroup) this.mActivity.getWindow().getDecorView().findViewById(android.R.id.content);
+		mParentView = (ViewGroup) this.mActivity.getWindow().getDecorView().findViewById(android.R.id.content);
 		LayoutParams params = mWebView.getLayoutParams();
 
 		if (params == null) {
@@ -74,7 +77,7 @@ public class FirebaseEngine {
 
 		mWebView.setLayoutParams(params);
 
-		v.addView(mWebView);
+		mParentView.addView(mWebView);
 	}
 
 	public void setLoadedListener(FirebaseLoaded loadedListener) {
