@@ -172,11 +172,20 @@ class FirebaseJavaScriptInterface {
 		} else {
 			method = "update('" + endpoint + "', " + obj.toString() + ")";
 		}
+    
 		loadMethod(method);
 	}
-
-	public void remove(String endpoint) {
-		String method = "remove('" + endpoint + "')";
+  
+	public void remove(String endpoint, SynchonizedToServer onComplete) {
+		String method = null;
+		if (onComplete != null) {
+			int methodId = mMethodCounter.incrementAndGet();
+			mSynchronizedToServer.put(methodId, onComplete);
+			method = "remove('" + endpoint + "', " + methodId + ")";
+		} else {
+			method = "remove('" + endpoint + "')";
+		}
+    
 		loadMethod(method);
 	}
 
