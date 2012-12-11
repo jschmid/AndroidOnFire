@@ -131,4 +131,28 @@ public class Firebase {
 	public Query limit(int limit) {
 		return new Query(mJsInterface, this).limit(limit);
 	}
+
+	public Query startAt() {
+		return startAt(null, null);
+	}
+
+	public Query startAt(String priority) {
+		return startAt(priority, null);
+	}
+
+	public Query startAt(String priority, String name) {
+		return new Query(mJsInterface, this).startAt(priority, name);
+	}
+
+	public Query endAt() {
+		return endAt(null, null);
+	}
+
+	public Query endAt(String priority) {
+		return endAt(priority, null);
+	}
+
+	public Query endAt(String priority, String name) {
+		return new Query(mJsInterface, this).endAt(priority, name);
+	}
 }
