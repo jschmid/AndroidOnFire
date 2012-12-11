@@ -123,17 +123,8 @@
   	  getBase(endpoint).removeOnDisconnect();
   	}
 
-  	function remove(endpoint, methodId) {
-  	  var parent = getBase(endpoint);
-  	  
-  	  if (methodId === undefined) {
-  	    parent.remove();
-  	  } else {
-  	    parent.remove(function (success) {
-  	      Android.synchronizedToServer(methodId, success);
-  	    });
-  	  }
-  	  
+  	function remove(endpoint) {
+  	  getBase(endpoint).remove();
   	  delete bases[endpoint];
   	}
 

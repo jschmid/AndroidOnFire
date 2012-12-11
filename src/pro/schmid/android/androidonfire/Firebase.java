@@ -58,12 +58,9 @@ public class Firebase {
 		this.mJsInterface.set(mEndpoint, obj, onComplete);
 	}
 
+	// TODO on complete
 	public void remove() {
-		this.remove(null);
-	}
-
-	public void remove(SynchonizedToServer onComplete) {
-		this.mJsInterface.remove(mEndpoint, onComplete);
+		this.mJsInterface.remove(mEndpoint);
 	}
 
 	public synchronized Firebase push() {
