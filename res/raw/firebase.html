@@ -123,6 +123,18 @@
   	  getBase(endpoint).removeOnDisconnect();
   	}
 
+  	function update(endpoint, obj, methodId) {
+  	  var parent = getBase(endpoint);
+  	  
+  	  if (methodId === undefined) {
+  	    parent.update(obj);
+  	  } else {
+  	    parent.update(obj, function (success) {
+  	      Android.synchronizedToServer(methodId, success);
+  	    });
+  	  }
+  	}
+
   	function remove(endpoint) {
   	  getBase(endpoint).remove();
   	  delete bases[endpoint];
@@ -175,7 +187,7 @@
   	    // There is a problem with the numbe of queries
   	  }
   	}
-
+  	
     </script>
   </body>
 </html>
