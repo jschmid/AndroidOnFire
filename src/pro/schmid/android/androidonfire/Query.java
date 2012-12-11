@@ -8,8 +8,10 @@ public class Query {
 	private final Firebase mFirebase;
 
 	int mLimit = -1;
+	Boolean mStartSpecified = false;
 	String mStartPriority;
 	String mStartName;
+	Boolean mEndSpecified = false;
 	String mEndPriority;
 	String mEndName;
 
@@ -34,27 +36,33 @@ public class Query {
 		return n;
 	}
 
+	public Query startAt() {
+		return startAt(null, null);
+	}
+
 	public Query startAt(String priority) {
-		Query n = new Query(this);
-		n.mStartPriority = priority;
-		return n;
+		return startAt(priority, null);
 	}
 
 	public Query startAt(String priority, String name) {
 		Query n = new Query(this);
+		n.mStartSpecified = true;
 		n.mStartPriority = priority;
 		n.mStartName = name;
 		return n;
 	}
 
+	public Query endAt() {
+		return endAt(null, null);
+	}
+
 	public Query endAt(String priority) {
-		Query n = new Query(this);
-		n.mEndPriority = priority;
-		return n;
+		return endAt(priority, null);
 	}
 
 	public Query endAt(String priority, String name) {
 		Query n = new Query(this);
+		n.mEndSpecified = true;
 		n.mEndPriority = priority;
 		n.mEndName = name;
 		return n;

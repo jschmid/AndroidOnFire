@@ -4,7 +4,7 @@
   </head>
   <body style="background: red;">
   	<script type='text/javascript'>
-  	
+
   	var bases = {};
   	var methods = {};
 
@@ -128,7 +128,7 @@
   	  delete bases[endpoint];
   	}
 
-  	function onQuery(endpoint, ev, methodId, limit, startPri, startName, endPri, endName) {
+  	function onQuery(endpoint, ev, methodId, limit, startSpecified, startPri, startName, endSpecified, endPri, endName) {
   	  
   	  var m = function (snapshot, prevChildName) {
   	    var name = snapshot.name();
@@ -146,19 +146,27 @@
   	      base = base.limit(limit);
   	    }
   	    
-  	    if (startPri != undefined) {
-  	      if (startName != undefined) {
-  	        base = base.startAt(startPri, startName);
+  	    if (startSpecified) {
+  	      if (startPri == undefined) {
+  	        base = base.startAt();
   	      } else {
-  	        base = base.startAt(startPri);
+  	        if (startName == undefined) {
+  	          base = base.startAt(startPri);
+  	        } else {
+  	          base = base.startAt(startPri, startName);
+  	        }
   	      }
   	    }
   	    
-  	    if (endPri != undefined) {
-  	      if (endName != undefined) {
-  	        base = base.endAt(endPri, endName);
+  	    if (endSpecified) {
+  	      if (endPri == undefined) {
+  	        base = base.endAt();
   	      } else {
-  	        base = base.endAt(endPri);
+  	        if (endName == undefined) {
+  	          base = base.endAt(endPri);
+  	        } else {
+  	          base = base.endAt(endPri, endName);
+  	        }
   	      }
   	    }
   	    

@@ -335,6 +335,8 @@ class FirebaseJavaScriptInterface {
 			sb.append(", undefined");
 		}
 
+		sb.append(", " + query.mStartSpecified.toString());
+
 		if (query.mStartPriority != null) {
 			sb.append(", '" + query.mStartPriority + "'");
 		} else {
@@ -346,6 +348,8 @@ class FirebaseJavaScriptInterface {
 		} else {
 			sb.append(", undefined");
 		}
+
+		sb.append(", " + query.mEndSpecified.toString());
 
 		if (query.mEndPriority != null) {
 			sb.append(", '" + query.mEndPriority + "'");
