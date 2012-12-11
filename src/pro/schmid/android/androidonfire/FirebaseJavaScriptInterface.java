@@ -163,6 +163,18 @@ class FirebaseJavaScriptInterface {
 		mTransactionsComplete.remove(methodId);
 	}
 
+	public void update(String endpoint, JsonElement obj, SynchonizedToServer onComplete) {
+		String method = null;
+		if (onComplete != null) {
+			int methodId = mMethodCounter.incrementAndGet();
+			mSynchronizedToServer.put(methodId, onComplete);
+			method = "update('" + endpoint + "', " + obj.toString() + ", " + methodId + ")";
+		} else {
+			method = "update('" + endpoint + "', " + obj.toString() + ")";
+		}
+		loadMethod(method);
+	}
+
 	public void remove(String endpoint) {
 		String method = "remove('" + endpoint + "')";
 		loadMethod(method);

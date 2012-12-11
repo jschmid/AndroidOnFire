@@ -58,6 +58,14 @@ public class Firebase {
 		this.mJsInterface.set(mEndpoint, obj, onComplete);
 	}
 
+	public void update(JsonElement obj) {
+		this.update(obj, null);
+	}
+
+	public void update(JsonElement obj, SynchonizedToServer onComplete) {
+		this.mJsInterface.update(mEndpoint, obj, onComplete);
+	}
+
 	// TODO on complete
 	public void remove() {
 		this.mJsInterface.remove(mEndpoint);
