@@ -4,7 +4,7 @@
   </head>
   <body style="background: red;">
   	<script type='text/javascript'>
-
+  	
   	var bases = {};
   	var methods = {};
 
@@ -17,7 +17,14 @@
   	  return base;
   	}
 
-  	function on(endpoint, ev, methodId) {
+  	function onFirebase(endpoint, ev, methodId) {
+  	  
+  	  var parent = getBase(endpoint);
+  	  
+  	  on(parent, endpoint, ev, methodId);
+  	}
+
+  	function on(parent, endpoint, ev, methodId) {
   	  
   	  var m = function (snapshot, prevChildName) {
   	    var name = snapshot.name();
@@ -28,21 +35,24 @@
   	  };
   	  methods[methodId] = m;
   	  
-  	  getBase(endpoint).on(ev, m);
+  	  parent.on(ev, m);
   	}
 
   	function off(endpoint, ev, methodId) {
+  	  
+  	  var parent = getBase(endpoint);
+  	  
   	  if (ev === undefined) {
-  	    getBase(endpoint).off();
+  	    parent.off();
   	  } else if (methodId === undefined) {
-  	    getBase(endpoint).off(ev);
+  	    parent.off(ev);
   	  } else {
   	    var m = methods[methodId];
   	    if (m == null) {
   	      return;
   	    }
   	    
-  	    getBase(endpoint).off(ev, m);
+  	    parent.off(ev, m);
   	    
   	    delete methods[methodId];
   	  }
@@ -151,15 +161,6 @@
 
   	function onQuery(endpoint, ev, methodId, limit, startSpecified, startPri, startName, endSpecified, endPri, endName) {
   	  
-  	  var m = function (snapshot, prevChildName) {
-  	    var name = snapshot.name();
-  	    var val = snapshot.val();
-  	    var pri = snapshot.getPriority();
-  	    var json = JSON.stringify(val);
-  	    Android.onEvent(endpoint, methodId, name, json, pri, prevChildName);
-  	  };
-  	  methods[methodId] = m;
-  	  
   	  try {
   	    var base = getBase(endpoint);
   	    
@@ -191,12 +192,12 @@
   	      }
   	    }
   	    
-  	    base.on(ev, m);
+  	    on(base, endpoint, ev, methodId);
   	  } catch (ex) {
-  	    // There is a problem with the numbe of queries
+  	    // There is a problem with the number of queries
   	  }
   	}
-  	
+
     </script>
   </body>
 </html>

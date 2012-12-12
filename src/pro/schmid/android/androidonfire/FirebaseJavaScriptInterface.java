@@ -172,10 +172,10 @@ class FirebaseJavaScriptInterface {
 		} else {
 			method = "update('" + endpoint + "', " + obj.toString() + ")";
 		}
-    
+
 		loadMethod(method);
 	}
-  
+
 	public void remove(String endpoint, SynchonizedToServer onComplete) {
 		String method = null;
 		if (onComplete != null) {
@@ -185,7 +185,7 @@ class FirebaseJavaScriptInterface {
 		} else {
 			method = "remove('" + endpoint + "')";
 		}
-    
+
 		loadMethod(method);
 	}
 
@@ -204,7 +204,7 @@ class FirebaseJavaScriptInterface {
 		this.mListenersIds.put(methodId, callback);
 		putCallBack(endpoint, ev, callback, methodId);
 
-		String method = "on('" + endpoint + "', '" + ev + "', " + methodId + ")";
+		String method = "onFirebase('" + endpoint + "', '" + ev + "', " + methodId + ")";
 		loadMethod(method);
 	}
 
@@ -345,7 +345,7 @@ class FirebaseJavaScriptInterface {
 
 		int methodId = mMethodCounter.incrementAndGet();
 		this.mListenersIds.put(methodId, callback);
-		// putCallBack(endpoint, ev, callback, methodId);
+		// TODO putCallBack(endpoint, ev, callback, methodId);
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("onQuery('" + endpoint + "', '" + ev + "', " + methodId);
