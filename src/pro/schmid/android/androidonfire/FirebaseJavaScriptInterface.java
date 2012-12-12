@@ -248,14 +248,14 @@ class FirebaseJavaScriptInterface {
 	public void off(String endpoint) {
 		removeMethods(endpoint);
 
-		String method = "off('" + endpoint.toString() + "')";
+		String method = "offFirebase('" + endpoint.toString() + "')";
 		loadMethod(method);
 	}
 
 	public void off(String endpoint, EventType ev) {
 		removeMethods(endpoint, ev);
 
-		String method = "off('" + endpoint.toString() + "', '" + ev + "')";
+		String method = "offFirebase('" + endpoint.toString() + "', '" + ev + "')";
 		loadMethod(method);
 	}
 
@@ -266,7 +266,7 @@ class FirebaseJavaScriptInterface {
 			return;
 		}
 
-		String method = "off('" + endpoint.toString() + "', '" + ev + "', " + methodId + ")";
+		String method = "offFirebase('" + endpoint.toString() + "', '" + ev + "', " + methodId + ")";
 		loadMethod(method);
 	}
 
@@ -349,7 +349,64 @@ class FirebaseJavaScriptInterface {
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("onQuery('" + endpoint + "', '" + ev + "', " + methodId);
+		addQueryToMethod(query, sb);
+		sb.append(")");
 
+		String method = sb.toString();
+		loadMethod(method);
+	}
+
+	public void offQuery(String endpoint, Query query) {
+
+		// TODO removeMethods(endpoint);
+
+		StringBuilder sb = new StringBuilder();
+		sb.append("offQuery('" + endpoint + "', undefined, undefined");
+		addQueryToMethod(query, sb);
+		sb.append(")");
+
+		String method = sb.toString();
+		loadMethod(method);
+
+	}
+
+	public void offQuery(String endpoint, Query query, EventType ev) {
+
+		// TODO removeMethods(endpoint);
+
+		StringBuilder sb = new StringBuilder();
+		sb.append("offQuery('" + endpoint + "', '" + ev + "', undefined");
+		addQueryToMethod(query, sb);
+		sb.append(")");
+
+		String method = sb.toString();
+		loadMethod(method);
+	}
+
+	public void offQuery(String endpoint, Query query, EventType ev, DataEvent callback) {
+
+		// TODO removeMethods(endpoint);
+
+		// StringBuilder sb = new StringBuilder();
+		// sb.append("offQuery('" + endpoint + "', '" + ev + "', " + methodId);
+		// addQueryToMethod(query, sb);
+		// sb.append(")");
+		//
+		// String method = sb.toString();
+		// loadMethod(method);
+	}
+
+	public void onceQuery(final String endpoint, final Query query, final EventType ev, final DataEvent callback) {
+		this.onQuery(endpoint, query, ev, new DataEvent() {
+			@Override
+			public void callback(DataSnapshot snapshot, String prevChildName) {
+				offQuery(endpoint, query, ev, this);
+				callback.callback(snapshot, prevChildName);
+			}
+		});
+	}
+
+	private void addQueryToMethod(Query query, StringBuilder sb) {
 		if (query.mLimit > -1) {
 			sb.append(", " + query.mLimit);
 		} else {
@@ -383,10 +440,5 @@ class FirebaseJavaScriptInterface {
 		} else {
 			sb.append(", undefined");
 		}
-
-		sb.append(")");
-
-		String method = sb.toString();
-		loadMethod(method);
 	}
 }

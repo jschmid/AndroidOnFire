@@ -38,9 +38,14 @@
       parent.on(ev, m);
     }
 
-    function off(endpoint, ev, methodId) {
+    function offFirebase(endpoint, ev, methodId) {
       
       var parent = getBase(endpoint);
+      
+      off(parent, endpoint, ev, methodId);
+    }
+
+    function off(parent, endpoint, ev, methodId) {
       
       if (ev === undefined) {
         parent.off();
@@ -165,6 +170,15 @@
       
       if (base != null) {
         on(base, endpoint, ev, methodId);
+      }
+    }
+
+    function offQuery(endpoint, ev, methodId, limit, startSpecified, startPri, startName, endSpecified, endPri, endName) {
+      
+      var base = getQuery(endpoint, limit, startSpecified, startPri, startName, endSpecified, endPri, endName);
+      
+      if (base != null) {
+        off(base, endpoint, ev, methodId);
       }
     }
 
