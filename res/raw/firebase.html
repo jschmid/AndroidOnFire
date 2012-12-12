@@ -4,7 +4,7 @@
   </head>
   <body style="background: red;">
     <script type='text/javascript'>
-    
+
     var bases = {};
     var methods = {};
 
@@ -161,6 +161,15 @@
 
     function onQuery(endpoint, ev, methodId, limit, startSpecified, startPri, startName, endSpecified, endPri, endName) {
       
+      var base = getQuery(endpoint, limit, startSpecified, startPri, startName, endSpecified, endPri, endName);
+      
+      if (base != null) {
+        on(base, endpoint, ev, methodId);
+      }
+    }
+
+    function getQuery(endpoint, limit, startSpecified, startPri, startName, endSpecified, endPri, endName) {
+      
       try {
         var base = getBase(endpoint);
         
@@ -192,9 +201,11 @@
           }
         }
         
-        on(base, endpoint, ev, methodId);
+        return base;
+        
       } catch (ex) {
         // There is a problem with the number of queries
+        return null;
       }
     }
     
