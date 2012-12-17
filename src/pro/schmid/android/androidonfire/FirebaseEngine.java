@@ -35,10 +35,10 @@ public class FirebaseEngine {
 	public void loadEngine(Activity activity) {
 		this.mActivity = activity;
 
-		mWebView = new WebView(mActivity);
+		this.mWebView = new WebView(mActivity);
 		WebSettings webSettings = mWebView.getSettings();
 		webSettings.setJavaScriptEnabled(true);
-		mJS = new FirebaseJavaScriptInterface(mWebView);
+		mJS = new FirebaseJavaScriptInterface(mWebView, mActivity);
 		mWebView.addJavascriptInterface(mJS, "Android");
 		mWebView.setWebViewClient(new WebViewClient() {
 			@Override
