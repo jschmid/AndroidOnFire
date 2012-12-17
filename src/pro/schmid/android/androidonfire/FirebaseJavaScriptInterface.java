@@ -38,6 +38,7 @@ class FirebaseJavaScriptInterface {
 	// Endpoint => Query => Event type => Callbacks => method id list
 	private final ConcurrentHashMap<String, Map<Query, Map<EventType, Map<DataEvent, List<Integer>>>>> mQueryListenersMap = new ConcurrentHashMap<String, Map<Query, Map<EventType, Map<DataEvent, List<Integer>>>>>();
 
+	// Counter for the methods
 	private final AtomicInteger mMethodCounter = new AtomicInteger();
 
 	protected FirebaseJavaScriptInterface(WebView webView, Activity activity) {
@@ -45,7 +46,7 @@ class FirebaseJavaScriptInterface {
 		this.mActivity = activity;
 	}
 
-	public void set(String endpoint, JsonElement obj, SynchonizedToServer onComplete) {
+	protected void set(String endpoint, JsonElement obj, SynchonizedToServer onComplete) {
 		String method = null;
 		if (onComplete != null) {
 			int methodId = mMethodCounter.incrementAndGet();
@@ -57,10 +58,36 @@ class FirebaseJavaScriptInterface {
 		loadMethod(method);
 	}
 
+	protected void update(String endpoint, JsonElement obj, SynchonizedToServer onComplete) {
+		String method = null;
+		if (onComplete != null) {
+			int methodId = mMethodCounter.incrementAndGet();
+			mSynchronizedToServer.put(methodId, onComplete);
+			method = "update('" + endpoint + "', " + obj.toString() + ", " + methodId + ")";
+		} else {
+			method = "update('" + endpoint + "', " + obj.toString() + ")";
+		}
+
+		loadMethod(method);
+	}
+
+	protected void remove(String endpoint, SynchonizedToServer onComplete) {
+		String method = null;
+		if (onComplete != null) {
+			int methodId = mMethodCounter.incrementAndGet();
+			mSynchronizedToServer.put(methodId, onComplete);
+			method = "remove('" + endpoint + "', " + methodId + ")";
+		} else {
+			method = "remove('" + endpoint + "')";
+		}
+
+		loadMethod(method);
+	}
+
 	private String mPushName = null;
 	private final Semaphore mSemaphore = new Semaphore(0, true);
 
-	public synchronized Firebase push(Firebase endpoint, JsonElement obj, SynchonizedToServer onComplete) {
+	protected synchronized Firebase push(Firebase endpoint, JsonElement obj, SynchonizedToServer onComplete) {
 		String method = null;
 		if (onComplete != null) {
 			int methodId = mMethodCounter.incrementAndGet();
@@ -89,7 +116,7 @@ class FirebaseJavaScriptInterface {
 		mSemaphore.release();
 	}
 
-	public void setWithPriority(String endpoint, JsonElement obj, String priority, SynchonizedToServer onComplete) {
+	protected void setWithPriority(String endpoint, JsonElement obj, String priority, SynchonizedToServer onComplete) {
 		String method = null;
 		if (onComplete != null) {
 			int methodId = mMethodCounter.incrementAndGet();
@@ -101,7 +128,7 @@ class FirebaseJavaScriptInterface {
 		loadMethod(method);
 	}
 
-	public void setPriority(String endpoint, String priority, SynchonizedToServer onComplete) {
+	protected void setPriority(String endpoint, String priority, SynchonizedToServer onComplete) {
 		String method = null;
 		if (onComplete != null) {
 			int methodId = mMethodCounter.incrementAndGet();
@@ -113,18 +140,7 @@ class FirebaseJavaScriptInterface {
 		loadMethod(method);
 	}
 
-	/**
-	 * Called by JS
-	 */
-	public void synchronizedToServer(int methodId, boolean success) {
-		SynchonizedToServer pushComplete = mSynchronizedToServer.get(methodId);
-		if (pushComplete != null) {
-			pushComplete.onComplete(success);
-			mSynchronizedToServer.remove(methodId);
-		}
-	}
-
-	public void transaction(String endpoint, Transaction transaction, TransactionComplete onComplete) {
+	protected void transaction(String endpoint, Transaction transaction, TransactionComplete onComplete) {
 		int methodId = mMethodCounter.incrementAndGet();
 		mTransactions.put(methodId, transaction);
 		mTransactionsComplete.put(methodId, onComplete);
@@ -172,43 +188,17 @@ class FirebaseJavaScriptInterface {
 		mTransactionsComplete.remove(methodId);
 	}
 
-	public void update(String endpoint, JsonElement obj, SynchonizedToServer onComplete) {
-		String method = null;
-		if (onComplete != null) {
-			int methodId = mMethodCounter.incrementAndGet();
-			mSynchronizedToServer.put(methodId, onComplete);
-			method = "update('" + endpoint + "', " + obj.toString() + ", " + methodId + ")";
-		} else {
-			method = "update('" + endpoint + "', " + obj.toString() + ")";
-		}
-
-		loadMethod(method);
-	}
-
-	public void remove(String endpoint, SynchonizedToServer onComplete) {
-		String method = null;
-		if (onComplete != null) {
-			int methodId = mMethodCounter.incrementAndGet();
-			mSynchronizedToServer.put(methodId, onComplete);
-			method = "remove('" + endpoint + "', " + methodId + ")";
-		} else {
-			method = "remove('" + endpoint + "')";
-		}
-
-		loadMethod(method);
-	}
-
-	public void setOnDisconnect(String endpoint, JsonElement obj) {
+	protected void setOnDisconnect(String endpoint, JsonElement obj) {
 		String method = "setOnDisconnect('" + endpoint + "', " + obj.toString() + ")";
 		loadMethod(method);
 	}
 
-	public void removeOnDisconnect(String endpoint) {
+	protected void removeOnDisconnect(String endpoint) {
 		String method = "removeOnDisconnect('" + endpoint + "')";
 		loadMethod(method);
 	}
 
-	public void on(String endpoint, EventType ev, DataEvent callback) {
+	protected void on(String endpoint, EventType ev, DataEvent callback) {
 		int methodId = mMethodCounter.incrementAndGet();
 		this.mListenersIds.put(methodId, callback);
 		putCallBack(endpoint, ev, callback, methodId);
@@ -242,33 +232,21 @@ class FirebaseJavaScriptInterface {
 		list.add(methodId);
 	}
 
-	/**
-	 * Called by JS
-	 */
-	public void onEvent(String endpoint, int methodId, String name, String val, String priority, String prevChildName) {
-		DataEvent listener;
-		if ((listener = this.mListenersIds.get(methodId)) != null) {
-			Firebase parent = FirebaseEngine.getInstance().newFirebase(endpoint);
-			DataSnapshot snapshot = new DataSnapshot(parent.child(name), val, priority);
-			listener.callback(snapshot, prevChildName);
-		}
-	}
-
-	public void off(String endpoint) {
+	protected void off(String endpoint) {
 		removeMethods(endpoint);
 
 		String method = "offFirebase('" + endpoint.toString() + "')";
 		loadMethod(method);
 	}
 
-	public void off(String endpoint, EventType ev) {
+	protected void off(String endpoint, EventType ev) {
 		removeMethods(endpoint, ev);
 
 		String method = "offFirebase('" + endpoint.toString() + "', '" + ev + "')";
 		loadMethod(method);
 	}
 
-	public void off(String endpoint, EventType ev, DataEvent callback) {
+	protected void off(String endpoint, EventType ev, DataEvent callback) {
 		Integer methodId = removeMethod(endpoint, ev, callback);
 
 		if (methodId == null) {
@@ -335,7 +313,7 @@ class FirebaseJavaScriptInterface {
 		return id;
 	}
 
-	public void once(final String endpoint, final EventType ev, final DataEvent callback) {
+	protected void once(final String endpoint, final EventType ev, final DataEvent callback) {
 		this.on(endpoint, ev, new DataEvent() {
 			@Override
 			public void callback(DataSnapshot snapshot, String prevChildName) {
@@ -345,7 +323,7 @@ class FirebaseJavaScriptInterface {
 		});
 	}
 
-	public void onQuery(String endpoint, Query query, EventType ev, DataEvent callback) {
+	protected void onQuery(String endpoint, Query query, EventType ev, DataEvent callback) {
 
 		int methodId = mMethodCounter.incrementAndGet();
 		this.mListenersIds.put(methodId, callback);
@@ -392,7 +370,7 @@ class FirebaseJavaScriptInterface {
 		list.add(methodId);
 	}
 
-	public void offQuery(String endpoint, Query query) {
+	protected void offQuery(String endpoint, Query query) {
 
 		removeMethods(endpoint, query);
 
@@ -406,7 +384,7 @@ class FirebaseJavaScriptInterface {
 
 	}
 
-	public void offQuery(String endpoint, Query query, EventType ev) {
+	protected void offQuery(String endpoint, Query query, EventType ev) {
 
 		removeMethods(endpoint, query, ev);
 
@@ -419,7 +397,7 @@ class FirebaseJavaScriptInterface {
 		loadMethod(method);
 	}
 
-	public void offQuery(String endpoint, Query query, EventType ev, DataEvent callback) {
+	protected void offQuery(String endpoint, Query query, EventType ev, DataEvent callback) {
 
 		Integer methodId = removeMethod(endpoint, query, ev, callback);
 
@@ -507,7 +485,7 @@ class FirebaseJavaScriptInterface {
 		return id;
 	}
 
-	public void onceQuery(final String endpoint, final Query query, final EventType ev, final DataEvent callback) {
+	protected void onceQuery(final String endpoint, final Query query, final EventType ev, final DataEvent callback) {
 		this.onQuery(endpoint, query, ev, new DataEvent() {
 			@Override
 			public void callback(DataSnapshot snapshot, String prevChildName) {
@@ -550,6 +528,29 @@ class FirebaseJavaScriptInterface {
 			sb.append(", '" + query.mEndName + "'");
 		} else {
 			sb.append(", undefined");
+		}
+	}
+
+	/**
+	 * Called by JS
+	 */
+	public void onEvent(String endpoint, int methodId, String name, String val, String priority, String prevChildName) {
+		DataEvent listener;
+		if ((listener = this.mListenersIds.get(methodId)) != null) {
+			Firebase parent = FirebaseEngine.getInstance().newFirebase(endpoint);
+			DataSnapshot snapshot = new DataSnapshot(parent.child(name), val, priority);
+			listener.callback(snapshot, prevChildName);
+		}
+	}
+
+	/**
+	 * Called by JS
+	 */
+	public void synchronizedToServer(int methodId, boolean success) {
+		SynchonizedToServer pushComplete = mSynchronizedToServer.get(methodId);
+		if (pushComplete != null) {
+			pushComplete.onComplete(success);
+			mSynchronizedToServer.remove(methodId);
 		}
 	}
 

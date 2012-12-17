@@ -30,6 +30,27 @@ public class Query {
 		this.mEndName = old.mEndName;
 	}
 
+	public DataEvent on(EventType ev, DataEvent callback) {
+		this.mJsInterface.onQuery(this.mFirebase.toString(), this, ev, callback);
+		return callback;
+	}
+
+	public void off() {
+		this.mJsInterface.offQuery(this.mFirebase.toString(), this);
+	}
+
+	public void off(EventType ev) {
+		this.mJsInterface.offQuery(this.mFirebase.toString(), this, ev);
+	}
+
+	public void off(EventType ev, DataEvent callback) {
+		this.mJsInterface.offQuery(this.mFirebase.toString(), this, ev, callback);
+	}
+
+	public void once(EventType ev, DataEvent callback) {
+		this.mJsInterface.onceQuery(this.mFirebase.toString(), this, ev, callback);
+	}
+
 	public Query limit(int limit) {
 		Query n = new Query(this);
 		n.mLimit = limit;
@@ -66,27 +87,6 @@ public class Query {
 		n.mEndPriority = priority;
 		n.mEndName = name;
 		return n;
-	}
-
-	public DataEvent on(EventType ev, DataEvent callback) {
-		this.mJsInterface.onQuery(this.mFirebase.toString(), this, ev, callback);
-		return callback;
-	}
-
-	public void off() {
-		this.mJsInterface.offQuery(this.mFirebase.toString(), this);
-	}
-
-	public void off(EventType ev) {
-		this.mJsInterface.offQuery(this.mFirebase.toString(), this, ev);
-	}
-
-	public void off(EventType ev, DataEvent callback) {
-		this.mJsInterface.offQuery(this.mFirebase.toString(), this, ev, callback);
-	}
-
-	public void once(EventType ev, DataEvent callback) {
-		this.mJsInterface.onceQuery(this.mFirebase.toString(), this, ev, callback);
 	}
 
 	@Override

@@ -88,15 +88,15 @@ public class FirebaseEngine {
 		return new Firebase(mJS, endpoint);
 	}
 
-	public static interface FirebaseLoaded {
-		public void firebaseLoaded();
-	}
-
 	public static final FirebaseEngine getInstance() {
 		return SingletonHolder.INSTANCE;
 	}
 
 	private static class SingletonHolder {
 		public static final FirebaseEngine INSTANCE = new FirebaseEngine();
+	}
+
+	public static interface FirebaseLoaded {
+		public void firebaseLoaded();
 	}
 }
