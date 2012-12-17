@@ -36,6 +36,10 @@ If you are using ProGuard, add these lines to your configuration file:
     -keepclassmembers class pro.schmid.android.androidonfire.FirebaseJavaScriptInterface {
        public *;
     }
+    
+# Example app
+
+You can see the example app: [FireDrawer][2].
 
 # How does it work?
 
@@ -44,3 +48,4 @@ Internally, `FirebaseEngine` creates an invisible [WebView][1] in the current Ac
 For this reason, you cannot have multiple activities since the WebView might be destroyed.
 
 [1]: https://developer.android.com/reference/android/webkit/WebView.html
+[2]: https://github.com/jschmid/FireDrawer
