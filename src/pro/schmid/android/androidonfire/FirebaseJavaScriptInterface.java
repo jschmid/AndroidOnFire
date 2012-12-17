@@ -12,6 +12,7 @@ import pro.schmid.android.androidonfire.callbacks.EventType;
 import pro.schmid.android.androidonfire.callbacks.SynchonizedToServer;
 import pro.schmid.android.androidonfire.callbacks.Transaction;
 import pro.schmid.android.androidonfire.callbacks.TransactionComplete;
+import android.app.Activity;
 import android.os.Looper;
 import android.util.Log;
 import android.util.SparseArray;
@@ -24,6 +25,8 @@ class FirebaseJavaScriptInterface {
 	private static final String TAG = FirebaseJavaScriptInterface.class.getSimpleName();
 
 	private final WebView mWebView;
+	private final Activity mActivity;
+
 	private final SparseArray<DataEvent> mListenersIds = new SparseArray<DataEvent>();
 	private final SparseArray<SynchonizedToServer> mSynchronizedToServer = new SparseArray<SynchonizedToServer>();
 	private final SparseArray<Transaction> mTransactions = new SparseArray<Transaction>();
@@ -37,8 +40,9 @@ class FirebaseJavaScriptInterface {
 
 	private final AtomicInteger mMethodCounter = new AtomicInteger();
 
-	protected FirebaseJavaScriptInterface(WebView webView) {
+	protected FirebaseJavaScriptInterface(WebView webView, Activity activity) {
 		this.mWebView = webView;
+		this.mActivity = activity;
 	}
 
 	public void set(String endpoint, JsonElement obj, SynchonizedToServer onComplete) {
@@ -551,11 +555,17 @@ class FirebaseJavaScriptInterface {
 
 	private void loadMethod(String method) {
 		Log.d(TAG, method);
+		final String loaMethod = "javascript:" + method;
 
 		if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
-			mWebView.loadUrl("javascript:" + method);
+			mWebView.loadUrl(loaMethod);
 		} else {
-			// Run on ui thread
+			this.mActivity.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					mWebView.loadUrl(loaMethod);
+				}
+			});
 		}
 	}
 }
