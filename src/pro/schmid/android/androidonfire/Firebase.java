@@ -9,6 +9,10 @@ import pro.schmid.android.androidonfire.callbacks.TransactionComplete;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+/**
+ * Public class mirroring the Firebase.js class.
+ * Every method can be used almost exactly like its Javascript parent.
+ */
 public class Firebase {
 	private final FirebaseJavaScriptInterface mJsInterface;
 	private final Firebase mParent;
@@ -74,7 +78,6 @@ public class Firebase {
 		this.mJsInterface.remove(mEndpoint, onComplete);
 	}
 
-
 	public synchronized Firebase push() {
 		return this.push(new JsonObject());
 	}
@@ -103,6 +106,11 @@ public class Firebase {
 		this.mJsInterface.setPriority(mEndpoint, priority, onComplete);
 	}
 
+	/**
+	 * Perform a transaction on the Firebase.
+	 * 
+	 * @param transaction
+	 */
 	public void transaction(Transaction transaction) {
 		transaction(transaction, null);
 	}

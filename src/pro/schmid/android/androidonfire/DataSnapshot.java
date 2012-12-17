@@ -2,9 +2,16 @@ package pro.schmid.android.androidonfire;
 
 import java.util.Map.Entry;
 
+import pro.schmid.android.androidonfire.callbacks.DataSnapshotCallback;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+/**
+ * Represents a snapshot of data.
+ * It can only be constructed by the Engine.
+ * See {@link https://www.firebase.com/docs/javascript-client/datasnapshot/index.html}
+ */
 public class DataSnapshot {
 	private final Firebase mParent;
 	private final JsonElement mElement;
@@ -48,6 +55,13 @@ public class DataSnapshot {
 		return new DataSnapshot(firebaseChild, child);
 	}
 
+	/**
+	 * Performs an action for every child in the current Firebase.
+	 * 
+	 * @param childAction
+	 *            The callback called for each child.
+	 * @return true is the callback has been ended
+	 */
 	// TODO priority
 	public boolean forEach(DataSnapshotCallback childAction) {
 		if (!hasChildren()) {
@@ -98,9 +112,5 @@ public class DataSnapshot {
 
 	public String getPriority() {
 		return mPriority;
-	}
-
-	public static interface DataSnapshotCallback {
-		public boolean method(DataSnapshot snapshot);
 	}
 }

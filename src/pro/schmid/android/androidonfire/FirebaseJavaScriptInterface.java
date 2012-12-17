@@ -21,6 +21,9 @@ import android.webkit.WebView;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
+/**
+ * Class used internally to access the {@link WebView}.
+ */
 class FirebaseJavaScriptInterface {
 	private static final String TAG = FirebaseJavaScriptInterface.class.getSimpleName();
 

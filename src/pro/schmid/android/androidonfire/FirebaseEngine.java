@@ -2,6 +2,7 @@ package pro.schmid.android.androidonfire;
 
 import java.io.InputStream;
 
+import pro.schmid.android.androidonfire.callbacks.FirebaseLoaded;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.res.Resources;
@@ -12,6 +13,10 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+/**
+ * Class to be called during application initialization.
+ * 
+ */
 @SuppressLint("SetJavaScriptEnabled")
 public class FirebaseEngine {
 
@@ -60,7 +65,7 @@ public class FirebaseEngine {
 
 			String content = new String(b);
 			// We need to have a base URL to load JS from other domains
-			mWebView.loadDataWithBaseURL("http:/android.schmid.pro", content, "text/html", "UTF-8", null);
+			mWebView.loadDataWithBaseURL("http://github.com/jschmid/AndroidOnFire", content, "text/html", "UTF-8", null);
 		} catch (Exception e) {
 			Log.d(TAG, "Could not load html", e);
 		}
@@ -80,23 +85,36 @@ public class FirebaseEngine {
 		mParentView.addView(mWebView);
 	}
 
+	/**
+	 * Listener to be called when the Firebase is ready and we can begin to call it.
+	 * 
+	 * @param loadedListener
+	 */
 	public void setLoadedListener(FirebaseLoaded loadedListener) {
 		this.mLoadedListener = loadedListener;
 	}
 
+	/**
+	 * This method should be called only once with the full Firebase URI.
+	 * Subsequent calls should use the returned object and use {@link child()}
+	 * 
+	 * @param endpoint
+	 * @return
+	 */
 	public Firebase newFirebase(String endpoint) {
 		return new Firebase(mJS, endpoint);
 	}
 
+	/**
+	 * Get the Singleton
+	 * 
+	 * @return
+	 */
 	public static final FirebaseEngine getInstance() {
 		return SingletonHolder.INSTANCE;
 	}
 
 	private static class SingletonHolder {
 		public static final FirebaseEngine INSTANCE = new FirebaseEngine();
-	}
-
-	public static interface FirebaseLoaded {
-		public void firebaseLoaded();
 	}
 }
