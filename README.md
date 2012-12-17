@@ -27,6 +27,16 @@ This is also true for _AndoirdOnFire_. You should only use one Activity while us
 
 Fortunately the Android team give us the ability to use Fragments. You can mimic the change of screen be embedding Fragment in your sole Activity and use the backstack to handle the back buttons.
 
+## Using ProGuard
+
+Since we use a WebView to communicate between the Firebase Javascript and the native app, we have to make sur that the calls from the Javascript are correctly routed.
+
+If you are using ProGuard, add these lines to your configuration file:
+
+    -keepclassmembers class pro.schmid.android.androidonfire.FirebaseJavaScriptInterface {
+       public *;
+    }
+
 # How does it work?
 
 Internally, `FirebaseEngine` creates an invisible [WebView][1] in the current Activity. It then execute the Firebase.js Javascript and passes events between the WebView and the engine.
