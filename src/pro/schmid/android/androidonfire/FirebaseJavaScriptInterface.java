@@ -12,6 +12,7 @@ import pro.schmid.android.androidonfire.callbacks.EventType;
 import pro.schmid.android.androidonfire.callbacks.SynchonizedToServer;
 import pro.schmid.android.androidonfire.callbacks.Transaction;
 import pro.schmid.android.androidonfire.callbacks.TransactionComplete;
+import android.os.Looper;
 import android.util.Log;
 import android.util.SparseArray;
 import android.webkit.WebView;
@@ -28,8 +29,12 @@ class FirebaseJavaScriptInterface {
 	private final SparseArray<Transaction> mTransactions = new SparseArray<Transaction>();
 	private final SparseArray<TransactionComplete> mTransactionsComplete = new SparseArray<TransactionComplete>();
 
-	// Base URL => Event type => Callbacks => method id list
+	// Endpoint => Event type => Callbacks => method id list
 	private final ConcurrentHashMap<String, Map<EventType, Map<DataEvent, List<Integer>>>> mListenersMap = new ConcurrentHashMap<String, Map<EventType, Map<DataEvent, List<Integer>>>>();
+
+	// Endpoint => Query => Event type => Callbacks => method id list
+	private final ConcurrentHashMap<String, Map<Query, Map<EventType, Map<DataEvent, List<Integer>>>>> mQueryListenersMap = new ConcurrentHashMap<String, Map<Query, Map<EventType, Map<DataEvent, List<Integer>>>>>();
+
 	private final AtomicInteger mMethodCounter = new AtomicInteger();
 
 	protected FirebaseJavaScriptInterface(WebView webView) {
@@ -336,16 +341,11 @@ class FirebaseJavaScriptInterface {
 		});
 	}
 
-	private void loadMethod(String method) {
-		Log.d(TAG, method);
-		mWebView.loadUrl("javascript:" + method);
-	}
-
 	public void onQuery(String endpoint, Query query, EventType ev, DataEvent callback) {
 
 		int methodId = mMethodCounter.incrementAndGet();
 		this.mListenersIds.put(methodId, callback);
-		// TODO putCallBack(endpoint, ev, callback, methodId);
+		putCallBack(endpoint, query, ev, callback, methodId);
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("onQuery('" + endpoint + "', '" + ev + "', " + methodId);
@@ -356,9 +356,41 @@ class FirebaseJavaScriptInterface {
 		loadMethod(method);
 	}
 
+	private void putCallBack(String endpoint, Query query, EventType ev, DataEvent callback, int methodId) {
+		// Endpoint => Query
+		Map<Query, Map<EventType, Map<DataEvent, List<Integer>>>> endpointChild = this.mQueryListenersMap.get(endpoint);
+		if (endpointChild == null) {
+			endpointChild = new ConcurrentHashMap<Query, Map<EventType, Map<DataEvent, List<Integer>>>>();
+			this.mQueryListenersMap.put(endpoint, endpointChild);
+		}
+
+		// Query => event type
+		Map<EventType, Map<DataEvent, List<Integer>>> queryChild = endpointChild.get(query);
+		if (queryChild == null) {
+			queryChild = new ConcurrentHashMap<EventType, Map<DataEvent, List<Integer>>>();
+			endpointChild.put(query, queryChild);
+		}
+
+		// event type => callbacks
+		Map<DataEvent, List<Integer>> callbacks = queryChild.get(ev);
+		if (callbacks == null) {
+			callbacks = new ConcurrentHashMap<DataEvent, List<Integer>>();
+			queryChild.put(ev, callbacks);
+		}
+
+		// Callback => method ids list
+		List<Integer> list = callbacks.get(callback);
+		if (list == null) {
+			list = new ArrayList<Integer>();
+			callbacks.put(callback, list);
+		}
+
+		list.add(methodId);
+	}
+
 	public void offQuery(String endpoint, Query query) {
 
-		// TODO removeMethods(endpoint);
+		removeMethods(endpoint, query);
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("offQuery('" + endpoint + "', undefined, undefined");
@@ -372,7 +404,7 @@ class FirebaseJavaScriptInterface {
 
 	public void offQuery(String endpoint, Query query, EventType ev) {
 
-		// TODO removeMethods(endpoint);
+		removeMethods(endpoint, query, ev);
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("offQuery('" + endpoint + "', '" + ev + "', undefined");
@@ -385,15 +417,90 @@ class FirebaseJavaScriptInterface {
 
 	public void offQuery(String endpoint, Query query, EventType ev, DataEvent callback) {
 
-		// TODO removeMethods(endpoint);
+		Integer methodId = removeMethod(endpoint, query, ev, callback);
 
-		// StringBuilder sb = new StringBuilder();
-		// sb.append("offQuery('" + endpoint + "', '" + ev + "', " + methodId);
-		// addQueryToMethod(query, sb);
-		// sb.append(")");
-		//
-		// String method = sb.toString();
-		// loadMethod(method);
+		if (methodId == null) {
+			return;
+		}
+
+		StringBuilder sb = new StringBuilder();
+		sb.append("offQuery('" + endpoint + "', '" + ev + "', " + methodId);
+		addQueryToMethod(query, sb);
+		sb.append(")");
+
+		String method = sb.toString();
+		loadMethod(method);
+	}
+
+	private void removeMethods(String endpoint, Query query) {
+		Map<Query, Map<EventType, Map<DataEvent, List<Integer>>>> parent = this.mQueryListenersMap.remove(endpoint);
+		if (parent == null) {
+			return;
+		}
+
+		Map<EventType, Map<DataEvent, List<Integer>>> child = parent.get(query);
+		if (child == null) {
+			return;
+		}
+
+		for (Map<DataEvent, List<Integer>> map : child.values()) {
+			for (List<Integer> item : map.values()) {
+				for (Integer integer : item) {
+					this.mListenersIds.remove(integer);
+				}
+			}
+		}
+	}
+
+	private void removeMethods(String endpoint, Query query, EventType ev) {
+		Map<Query, Map<EventType, Map<DataEvent, List<Integer>>>> parent = this.mQueryListenersMap.get(endpoint);
+		if (parent == null) {
+			return;
+		}
+
+		Map<EventType, Map<DataEvent, List<Integer>>> child = parent.get(query);
+		if (child == null) {
+			return;
+		}
+
+		Map<DataEvent, List<Integer>> map = child.remove(ev);
+		for (List<Integer> item : map.values()) {
+			for (Integer integer : item) {
+				this.mListenersIds.remove(integer);
+			}
+		}
+	}
+
+	private Integer removeMethod(String endpoint, Query query, EventType ev, DataEvent callback) {
+		Map<Query, Map<EventType, Map<DataEvent, List<Integer>>>> parent = this.mQueryListenersMap.get(endpoint);
+		if (parent == null) {
+			return null;
+		}
+
+		Map<EventType, Map<DataEvent, List<Integer>>> child = parent.get(query);
+		if (child == null) {
+			return null;
+		}
+
+		Map<DataEvent, List<Integer>> callbacks = child.get(ev);
+		if (callbacks == null) {
+			return null;
+		}
+
+		List<Integer> list = callbacks.get(callback);
+		if (list == null) {
+			return null;
+		}
+
+		if (list.size() <= 0) {
+			return null;
+		}
+
+		Integer id = list.remove(0);
+		if (id != null) {
+			this.mListenersIds.remove(id);
+		}
+		return id;
 	}
 
 	public void onceQuery(final String endpoint, final Query query, final EventType ev, final DataEvent callback) {
@@ -439,6 +546,16 @@ class FirebaseJavaScriptInterface {
 			sb.append(", '" + query.mEndName + "'");
 		} else {
 			sb.append(", undefined");
+		}
+	}
+
+	private void loadMethod(String method) {
+		Log.d(TAG, method);
+
+		if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
+			mWebView.loadUrl("javascript:" + method);
+		} else {
+			// Run on ui thread
 		}
 	}
 }

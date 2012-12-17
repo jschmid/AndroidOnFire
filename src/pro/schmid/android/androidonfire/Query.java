@@ -88,4 +88,78 @@ public class Query {
 	public void once(EventType ev, DataEvent callback) {
 		this.mJsInterface.onceQuery(this.mFirebase.toString(), this, ev, callback);
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (mEndName == null ? 0 : mEndName.hashCode());
+		result = prime * result + (mEndPriority == null ? 0 : mEndPriority.hashCode());
+		result = prime * result + (mEndSpecified == null ? 0 : mEndSpecified.hashCode());
+		result = prime * result + mLimit;
+		result = prime * result + (mStartName == null ? 0 : mStartName.hashCode());
+		result = prime * result + (mStartPriority == null ? 0 : mStartPriority.hashCode());
+		result = prime * result + (mStartSpecified == null ? 0 : mStartSpecified.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		Query other = (Query) obj;
+		if (mEndName == null) {
+			if (other.mEndName != null) {
+				return false;
+			}
+		} else if (!mEndName.equals(other.mEndName)) {
+			return false;
+		}
+		if (mEndPriority == null) {
+			if (other.mEndPriority != null) {
+				return false;
+			}
+		} else if (!mEndPriority.equals(other.mEndPriority)) {
+			return false;
+		}
+		if (mEndSpecified == null) {
+			if (other.mEndSpecified != null) {
+				return false;
+			}
+		} else if (!mEndSpecified.equals(other.mEndSpecified)) {
+			return false;
+		}
+		if (mLimit != other.mLimit) {
+			return false;
+		}
+		if (mStartName == null) {
+			if (other.mStartName != null) {
+				return false;
+			}
+		} else if (!mStartName.equals(other.mStartName)) {
+			return false;
+		}
+		if (mStartPriority == null) {
+			if (other.mStartPriority != null) {
+				return false;
+			}
+		} else if (!mStartPriority.equals(other.mStartPriority)) {
+			return false;
+		}
+		if (mStartSpecified == null) {
+			if (other.mStartSpecified != null) {
+				return false;
+			}
+		} else if (!mStartSpecified.equals(other.mStartSpecified)) {
+			return false;
+		}
+		return true;
+	}
 }
