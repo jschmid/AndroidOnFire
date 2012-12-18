@@ -123,10 +123,9 @@
         return Android.callTransactionMethod(endpoint, methodId, json);
       },
         function (success, snapshot, reason) {
-        var name = snapshot.name();
         var val = snapshot.val();
         var json = JSON.stringify(val);
-        Android.transactionComplete(endpoint, methodId, success, name, json, reason);
+        Android.transactionComplete(endpoint, methodId, success, json, reason);
       });
     }
 

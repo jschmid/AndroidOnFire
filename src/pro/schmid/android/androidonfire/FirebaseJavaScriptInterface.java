@@ -176,10 +176,10 @@ class FirebaseJavaScriptInterface {
 	/**
 	 * Called by JS
 	 */
-	public void transactionComplete(String endpoint, int methodId, boolean success, String name, String val, String reason) {
+	public void transactionComplete(String endpoint, int methodId, boolean success, String val, String reason) {
 
 		Firebase parent = FirebaseEngine.getInstance().newFirebase(endpoint);
-		DataSnapshot snapshot = new DataSnapshot(parent.child(name), val);
+		DataSnapshot snapshot = new DataSnapshot(parent, val);
 
 		TransactionComplete transactionComplete = mTransactionsComplete.get(methodId);
 
