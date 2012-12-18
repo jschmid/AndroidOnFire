@@ -15,33 +15,46 @@ import com.google.gson.JsonObject;
  */
 public class Firebase {
 	private final FirebaseJavaScriptInterface mJsInterface;
-	private final Firebase mParent;
 	private final String mEndpoint;
 	private final String mName;
+	private final String mParent;
 
-	protected Firebase(FirebaseJavaScriptInterface jsInterface, String name) {
-		this(jsInterface, null, name);
-	}
+	protected Firebase(FirebaseJavaScriptInterface jsInterface, String endpoint) {
+		if (!endpoint.startsWith("https://") && !endpoint.startsWith("http://")) {
+			throw new IllegalArgumentException("Endpoint must begin with http:// or https://");
+		}
 
-	protected Firebase(FirebaseJavaScriptInterface jsInterface, Firebase parent, String name) {
-		this.mParent = parent;
 		this.mJsInterface = jsInterface;
-		this.mName = name;
+		this.mEndpoint = endpoint;
 
-		if (mParent != null) {
-			mEndpoint = mParent.toString() + "/" + mName;
+		int doubleSlashes = endpoint.indexOf("//") + 2;
+		int lastSlash = endpoint.lastIndexOf('/');
+
+		// No slash, we are at the root
+		if (lastSlash < doubleSlashes) {
+			int dot = endpoint.indexOf('.', doubleSlashes);
+			this.mName = endpoint.substring(doubleSlashes, dot);
+			this.mParent = null;
+
+			// Take the last string after the last slash, it will be the Firebase name
 		} else {
-			mEndpoint = mName;
+			this.mName = endpoint.substring(lastSlash + 1);
+			this.mParent = endpoint.substring(0, lastSlash);
 		}
 	}
 
-	// TODO child path
 	public Firebase child(String childPath) {
-		return new Firebase(this.mJsInterface, this, childPath);
+		int stringBegin = childPath.startsWith("/") ? 1 : 0;
+		int stringEnd = childPath.endsWith("/") ? childPath.length() - 1 : childPath.length();
+		childPath = childPath.substring(stringBegin, stringEnd);
+
+		String endpoint = this.mEndpoint + "/" + childPath;
+
+		return new Firebase(this.mJsInterface, endpoint);
 	}
 
 	public Firebase parent() {
-		return this.mParent;
+		return new Firebase(this.mJsInterface, this.mParent);
 	}
 
 	public String name() {
