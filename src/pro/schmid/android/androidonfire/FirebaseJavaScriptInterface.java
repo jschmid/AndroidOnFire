@@ -107,7 +107,7 @@ class FirebaseJavaScriptInterface {
 			return null;
 		}
 
-		Firebase newBase = new Firebase(this, endpoint, mPushName);
+		Firebase newBase = endpoint.child(mPushName);
 		return newBase;
 	}
 

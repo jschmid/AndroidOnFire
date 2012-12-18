@@ -99,9 +99,13 @@ public class FirebaseEngine {
 	 * Subsequent calls should use the returned object and use {@link child()}
 	 * 
 	 * @param endpoint
-	 * @return
+	 * @return null if the endpoint is not the full URI, otherwise the {@link Firebase}
 	 */
 	public Firebase newFirebase(String endpoint) {
+		if (!endpoint.startsWith("https://") && !endpoint.startsWith("http://")) {
+			return null;
+		}
+
 		return new Firebase(mJS, endpoint);
 	}
 
