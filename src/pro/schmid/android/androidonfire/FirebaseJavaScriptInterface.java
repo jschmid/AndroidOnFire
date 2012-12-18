@@ -50,6 +50,11 @@ class FirebaseJavaScriptInterface {
 	}
 
 	protected void set(String endpoint, JsonElement obj, SynchonizedToServer onComplete) {
+
+		if (obj == null) {
+			obj = JsonNull.INSTANCE;
+		}
+
 		String method = null;
 		if (onComplete != null) {
 			int methodId = mMethodCounter.incrementAndGet();
@@ -62,6 +67,11 @@ class FirebaseJavaScriptInterface {
 	}
 
 	protected void update(String endpoint, JsonElement obj, SynchonizedToServer onComplete) {
+
+		if (obj == null) {
+			obj = JsonNull.INSTANCE;
+		}
+
 		String method = null;
 		if (onComplete != null) {
 			int methodId = mMethodCounter.incrementAndGet();
@@ -91,6 +101,11 @@ class FirebaseJavaScriptInterface {
 	private final Semaphore mSemaphore = new Semaphore(0, true);
 
 	protected synchronized Firebase push(Firebase endpoint, JsonElement obj, SynchonizedToServer onComplete) {
+
+		if (obj == null) {
+			obj = JsonNull.INSTANCE;
+		}
+
 		String method = null;
 		if (onComplete != null) {
 			int methodId = mMethodCounter.incrementAndGet();
@@ -120,6 +135,11 @@ class FirebaseJavaScriptInterface {
 	}
 
 	protected void setWithPriority(String endpoint, JsonElement obj, String priority, SynchonizedToServer onComplete) {
+
+		if (obj == null) {
+			obj = JsonNull.INSTANCE;
+		}
+
 		String method = null;
 		if (onComplete != null) {
 			int methodId = mMethodCounter.incrementAndGet();
@@ -192,6 +212,11 @@ class FirebaseJavaScriptInterface {
 	}
 
 	protected void setOnDisconnect(String endpoint, JsonElement obj) {
+
+		if (obj == null) {
+			obj = JsonNull.INSTANCE;
+		}
+
 		String method = "setOnDisconnect('" + endpoint + "', " + obj.toString() + ")";
 		loadMethod(method);
 	}
