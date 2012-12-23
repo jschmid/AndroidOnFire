@@ -1,7 +1,7 @@
 AndroidOnFire
 =============
 
-A library to use Firebase on a native Android application.
+A library to use [Firebase][firebase] on a native Android application.
 
 # Installation
 
@@ -49,3 +49,4 @@ For this reason, you cannot have multiple activities since the WebView might be 
 
 [1]: https://developer.android.com/reference/android/webkit/WebView.html
 [2]: https://github.com/jschmid/FireDrawer
+[firebase]: https://www.firebase.com/
