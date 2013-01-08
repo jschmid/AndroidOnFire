@@ -584,15 +584,15 @@ class FirebaseJavaScriptInterface {
 
 	private void loadMethod(String method) {
 		Log.d(TAG, method);
-		final String loaMethod = "javascript:" + method;
+		final String loadMethod = "javascript:" + method;
 
 		if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
-			mWebView.loadUrl(loaMethod);
+			mWebView.loadUrl(loadMethod);
 		} else {
 			this.mActivity.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					mWebView.loadUrl(loaMethod);
+					mWebView.loadUrl(loadMethod);
 				}
 			});
 		}
