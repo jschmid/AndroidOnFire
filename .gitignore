@@ -1,4 +1,5 @@
 bin
 gen
 lint.xml
+.settings
 

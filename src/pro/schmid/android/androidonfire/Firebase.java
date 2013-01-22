@@ -7,7 +7,6 @@ import pro.schmid.android.androidonfire.callbacks.Transaction;
 import pro.schmid.android.androidonfire.callbacks.TransactionComplete;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 /**
  * Public class mirroring the Firebase.js class.
@@ -92,7 +91,7 @@ public class Firebase {
 	}
 
 	public synchronized Firebase push() {
-		return this.push(new JsonObject());
+		return this.push(null);
 	}
 
 	public synchronized Firebase push(JsonElement obj) {

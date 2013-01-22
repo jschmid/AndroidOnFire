@@ -16,6 +16,7 @@ import android.app.Activity;
 import android.os.Looper;
 import android.util.Log;
 import android.util.SparseArray;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
 import com.google.gson.JsonElement;
@@ -102,17 +103,15 @@ class FirebaseJavaScriptInterface {
 
 	protected synchronized Firebase push(Firebase endpoint, JsonElement obj, SynchonizedToServer onComplete) {
 
-		if (obj == null) {
-			obj = JsonNull.INSTANCE;
-		}
-
 		String method = null;
 		if (onComplete != null) {
 			int methodId = mMethodCounter.incrementAndGet();
 			mSynchronizedToServer.put(methodId, onComplete);
 			method = "push('" + endpoint.toString() + "', " + obj.toString() + ", " + methodId + ")";
-		} else {
+		} else if (obj != null) {
 			method = "push('" + endpoint.toString() + "', " + obj.toString() + ")";
+		} else {
+			method = "push('" + endpoint.toString() + "')";
 		}
 		loadMethod(method);
 
@@ -126,9 +125,7 @@ class FirebaseJavaScriptInterface {
 		return newBase;
 	}
 
-	/**
-	 * Called by JS
-	 */
+	@JavascriptInterface
 	public void pushed(String name) {
 		mPushName = name;
 		mSemaphore.release();
@@ -172,9 +169,7 @@ class FirebaseJavaScriptInterface {
 		loadMethod(method);
 	}
 
-	/**
-	 * Called by JS
-	 */
+	@JavascriptInterface
 	public String callTransactionMethod(String endpoint, int methodId, String json) {
 		Transaction transaction = mTransactions.get(methodId);
 
@@ -193,9 +188,7 @@ class FirebaseJavaScriptInterface {
 		}
 	}
 
-	/**
-	 * Called by JS
-	 */
+	@JavascriptInterface
 	public void transactionComplete(String endpoint, int methodId, boolean success, String val, String reason) {
 
 		Firebase parent = FirebaseEngine.getInstance().newFirebase(endpoint);
@@ -559,21 +552,17 @@ class FirebaseJavaScriptInterface {
 		}
 	}
 
-	/**
-	 * Called by JS
-	 */
-	public void onEvent(String endpoint, int methodId, String name, String val, String priority, String prevChildName) {
+	@JavascriptInterface
+	public void onEvent(String endpoint, int methodId, String val, String priority, String prevChildName) {
 		DataEvent listener;
 		if ((listener = this.mListenersIds.get(methodId)) != null) {
 			Firebase parent = FirebaseEngine.getInstance().newFirebase(endpoint);
-			DataSnapshot snapshot = new DataSnapshot(parent.child(name), val, priority);
+			DataSnapshot snapshot = new DataSnapshot(parent, val, priority);
 			listener.callback(snapshot, prevChildName);
 		}
 	}
 
-	/**
-	 * Called by JS
-	 */
+	@JavascriptInterface
 	public void synchronizedToServer(int methodId, boolean success) {
 		SynchonizedToServer pushComplete = mSynchronizedToServer.get(methodId);
 		if (pushComplete != null) {

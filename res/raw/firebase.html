@@ -1,8 +1,8 @@
 <html>
   <head>
-    <script type='text/javascript' src='http://static.firebase.com/v0/firebase.js'></script>
+    <script type='text/javascript' src='https://cdn.firebase.com/v0/firebase.js'></script>
   </head>
-  <body style="background: red;">
+  <body>
     <script type='text/javascript'>
 
     var bases = {};
@@ -31,7 +31,7 @@
         var val = snapshot.val();
         var pri = snapshot.getPriority();
         var json = JSON.stringify(val);
-        Android.onEvent(endpoint, methodId, name, json, pri, prevChildName);
+        Android.onEvent(snapshot.ref().toString(), methodId, json, pri, prevChildName);
       };
       methods[methodId] = m;
       
@@ -102,7 +102,9 @@
     function push(endpoint, obj, methodId) {
       var parent = getBase(endpoint);
       
-      if (methodId === undefined) {
+      if(obj === undefined) {
+        var pushed = parent.push();
+      } else if (methodId === undefined) {
         var pushed = parent.push(obj);
       } else {
         var pushed = parent.push(obj, function (success) {
