@@ -27,6 +27,34 @@ This is also true for _AndroidOnFire_. You should only use one Activity while us
 
 Fortunately the Android team give us the ability to use Fragments. You can mimic the change of screen be embedding Fragment in your sole Activity and use the backstack to handle the back buttons.
 
+## Code sample
+
+	private FirebaseEngine mEngine;
+	private Firebase mFirebase;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.main);
+
+		mEngine = FirebaseEngine.getInstance();
+		mEngine.setLoadedListener(new FirebaseLoaded() {
+			@Override
+			public void firebaseLoaded() {
+				mFirebase = mEngine.newFirebase("https://example.firebaseio.com");
+
+				// Do whatever you want with your Firebase!
+			}
+		});
+		mEngine.loadEngine(this);
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		mEngine.onDestroy();
+	}
+
 ## Using ProGuard
 
 Since we use a WebView to communicate between the Firebase Javascript and the native app, we have to make sur that the calls from the Javascript are correctly routed.
@@ -37,7 +65,7 @@ If you are using ProGuard, add these lines to your configuration file:
        public *;
     }
     
-# Example app
+# Example apps
 
 You can see the example app [FireDrawer][2] which allows your to draw on a canvas with multiple users.
 
