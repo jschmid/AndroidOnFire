@@ -55,6 +55,12 @@ Fortunately the Android team give us the ability to use Fragments. You can mimic
 		mEngine.onDestroy();
 	}
 
+## Ask for the Internet permission
+
+Do not forget to ask for the INTERNET permission in the `AndroidManifest.xml` file. Otherwise you won't be able to contact the Firebase servers ;-)
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
 ## Using ProGuard
 
 Since we use a WebView to communicate between the Firebase Javascript and the native app, we have to make sur that the calls from the Javascript are correctly routed.
