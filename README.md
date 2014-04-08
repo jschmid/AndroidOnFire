@@ -90,7 +90,3 @@ For this reason, you cannot have multiple activities since the WebView might be 
 [4]: https://github.com/jschmid/WhereAreYou-Android
 [5]: http://w.schmid.pro/
 [6]: https://github.com/jschmid/WhereAreYou-Web
-
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/jschmid/androidonfire/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
